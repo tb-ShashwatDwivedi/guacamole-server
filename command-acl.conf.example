@@ -1,0 +1,137 @@
+# Apache Guacamole SSH Command ACL Configuration
+# ================================================
+# 
+# This file configures command access control lists (ACL) for SSH connections.
+# Rules can be defined at three levels (in order of priority):
+#   1. Per-user (Guacamole web username)
+#   2. Per-connection (SSH hostname:username)
+#   3. Global (applies to all connections)
+#
+# Installation:
+#   Copy this file to /etc/guacamole/command-acl.conf
+#   Set appropriate permissions: chmod 600 /etc/guacamole/command-acl.conf
+#   Ensure readable by the guacd user
+#
+# Format:
+#   - blacklist: Comma-separated list of blocked command patterns
+#   - whitelist: Comma-separated list of allowed command patterns
+#                (if set, ONLY these commands are allowed)
+#   - blocked_message: Message displayed when a command is blocked
+#
+# Pattern Matching:
+#   - Simple substring matching (e.g., "rm" matches "rm", "rm -rf", "arm")
+#   - Patterns are case-sensitive
+#
+# Important Notes:
+#   - Alias and function definitions are ALWAYS blocked regardless of rules
+#   - This provides application-level protection; use AppArmor/SELinux for
+#     kernel-level enforcement on SSH servers
+#   - Empty commands are always allowed
+#   - If no rules match, commands are allowed by default
+
+# ============================================================================
+# GLOBAL RULES (apply to all SSH connections unless overridden)
+# ============================================================================
+[global]
+# Block dangerous commands globally
+blacklist=rm -rf,sudo,shutdown,reboot,halt,poweroff,init,userdel,useradd,passwd,dd,fdisk,mkfs,parted,systemctl,service,killall,pkill
+
+# Optional: Uncomment to enable whitelist mode (only these commands allowed)
+#whitelist=ls,cd,pwd,cat,grep,tail,head,less,more,ps,top,df,du,free,uname,hostname,date
+
+# Message shown when a command is blocked
+blocked_message=\r\n*** Command blocked by security policy ***\r\n
+
+# ============================================================================
+# PER-CONNECTION RULES (SSH hostname:username)
+# ============================================================================
+# Format: [connection:hostname:sshusername]
+# These rules override global rules for specific SSH connections
+
+[connection:production-server.example.com:appuser]
+# Strict rules for production server
+blacklist=rm,mv,cp,sudo,chmod,chown,kill,pkill
+whitelist=ls,cd,pwd,cat,grep,tail,head,less,ps,top,df,free
+blocked_message=\r\n*** Access denied on production server ***\r\n
+
+[connection:dev-server.example.com:developer]
+# More permissive for development server
+blacklist=sudo,shutdown,reboot,rm -rf /
+whitelist=
+blocked_message=\r\n*** Command not allowed ***\r\n
+
+[connection:backup-server.example.com:backup]
+# Read-only access for backup server
+whitelist=ls,cd,cat,tar,gzip,find,stat,file
+blocked_message=\r\n*** Read-only access - command denied ***\r\n
+
+# ============================================================================
+# PER-USER RULES (Guacamole web username)
+# ============================================================================
+# Format: [user:guacamole_username]
+# These rules override connection and global rules for specific Guacamole users
+
+[user:admin]
+# Admin users have fewer restrictions
+blacklist=rm -rf /,dd if=/dev/zero
+blocked_message=\r\n*** Even admins can't do that ***\r\n
+
+[user:readonly-user]
+# Read-only user - very restrictive
+whitelist=ls,cd,pwd,cat,less,more,grep,head,tail,find
+blacklist=
+blocked_message=\r\n*** Read-only user - command not allowed ***\r\n
+
+[user:developer]
+# Developer user - moderate restrictions
+blacklist=sudo,shutdown,reboot,halt,rm -rf /,userdel,useradd
+blocked_message=\r\n*** Developer access - command blocked ***\r\n
+
+[user:auditor]
+# Auditor - can only view logs and system info
+whitelist=cat,less,tail,head,grep,ls,cd,pwd,ps,top,df,du,free,last,who,w,uptime,uname
+blocked_message=\r\n*** Auditor access - command not allowed ***\r\n
+
+# ============================================================================
+# EXAMPLE USE CASES
+# ============================================================================
+
+# Example 1: Junior developer with restricted access
+#[user:junior-dev]
+#blacklist=sudo,rm,mv,chmod,chown,kill,shutdown,reboot
+#blocked_message=\r\n*** Junior developer - please contact senior staff ***\r\n
+
+# Example 2: Database-only access
+#[connection:db-server.example.com:dbuser]
+#whitelist=psql,mysql,mongosh,redis-cli,ls,cd,pwd
+#blocked_message=\r\n*** Database access only ***\r\n
+
+# Example 3: Monitoring user
+#[user:monitor]
+#whitelist=top,htop,ps,netstat,ss,iostat,vmstat,free,df,du,uptime
+#blocked_message=\r\n*** Monitoring access only ***\r\n
+
+# Example 4: Emergency access (minimal restrictions)
+#[user:emergency]
+#blacklist=rm -rf /,dd if=/dev/zero of=/dev/sda
+#blocked_message=\r\n*** Even in emergency, some commands are blocked ***\r\n
+
+# ============================================================================
+# SECURITY RECOMMENDATIONS
+# ============================================================================
+#
+# 1. Start with a restrictive global blacklist
+# 2. Use whitelists for highly sensitive systems
+# 3. Test rules thoroughly before deployment
+# 4. Monitor logs for blocked command attempts
+# 5. Combine with SSH server-side restrictions:
+#    - Use ForceCommand in SSH config
+#    - Implement rbash (restricted bash)
+#    - Deploy AppArmor/SELinux profiles
+# 6. Regularly review and update ACL rules
+# 7. Use per-user rules for role-based access control
+# 8. Document your ACL policy in comments
+#
+# ============================================================================
+# END OF CONFIGURATION
+# ============================================================================

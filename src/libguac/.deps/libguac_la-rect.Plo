@@ -1,0 +1,9 @@
+libguac_la-rect.lo: rect.c /usr/include/stdc-predef.h guacamole/rect.h \
+ guacamole/mem.h guacamole/private/mem.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h guacamole/rect-types.h
+/usr/include/stdc-predef.h:
+guacamole/rect.h:
+guacamole/mem.h:
+guacamole/private/mem.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h:
+guacamole/rect-types.h:
