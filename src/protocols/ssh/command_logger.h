@@ -1,0 +1,55 @@
+#ifndef GUAC_SSH_COMMAND_LOGGER_H
+#define GUAC_SSH_COMMAND_LOGGER_H
+
+#include <guacamole/user.h>
+#include <guacamole/client.h>
+#include <time.h>
+#include <stdio.h>
+#include <string.h>
+
+// Forward declaration
+struct guac_ssh_acl_config;
+
+// Circular buffer for command building
+#define CMD_BUFFER_SIZE 4096
+#define MAX_CMD_LENGTH 1024
+#define SESSION_ID_LEN 256
+#define CONNECTION_ID_LEN 64
+
+typedef struct command_logger {
+    char buffer[CMD_BUFFER_SIZE];
+    int buffer_pos;
+    char display_buffer[CMD_BUFFER_SIZE];    // Track what's displayed (for tab completion)
+    int display_pos;
+    int cursor_pos;                          // Current cursor position in buffer
+    int in_tab_completion;                   // Flag to track if we're in tab completion
+    time_t command_start;
+    char username[256];
+    char remote_ip[64];
+    char connection_id[CONNECTION_ID_LEN];  // Unique per connection from Guacamole
+    char session_id[SESSION_ID_LEN];        // Detailed session identifier
+    guac_client* client;                     // Reference to client for logging and ACL
+    struct guac_ssh_acl_config* acl_config;  // ACL configuration
+    char ssh_hostname[256];                  // SSH hostname for ACL matching
+    FILE* log_file;                          // Main command log
+    FILE* alert_file;                        // Dangerous commands log
+    FILE* restricted_file;                   // ACL-restricted commands log
+} command_logger;
+
+// Initialize logger for a user
+command_logger* guac_ssh_command_logger_create(guac_user* user, const char* username, 
+                                                const char* ssh_hostname);
+
+// Log a keystroke (builds command)
+void guac_ssh_command_logger_key(command_logger* logger, int keysym, int pressed);
+
+// Process terminal output (for capturing tab completion)
+void guac_ssh_command_logger_output(command_logger* logger, const char* data, int length);
+
+// Flush incomplete command
+void guac_ssh_command_logger_flush(command_logger* logger);
+
+// Clean up
+void guac_ssh_command_logger_free(command_logger* logger);
+
+#endif

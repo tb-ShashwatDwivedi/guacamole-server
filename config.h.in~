@@ -63,18 +63,18 @@
 /* Defined if CLIPRDR structs have a common CLIPRDR_HEADER */
 #undef HAVE_CLIPRDR_HEADER
 
-/* Define to 1 if you have the 'clock_gettime' function. */
+/* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
-/* Define to 1 if you have the declaration of 'FreeRDPReadColor', and to 0 if
+/* Define to 1 if you have the declaration of `FreeRDPReadColor', and to 0 if
    you don't. */
 #undef HAVE_DECL_FREERDPREADCOLOR
 
-/* Define to 1 if you have the declaration of 'freerdp_settings_set_pointer',
+/* Define to 1 if you have the declaration of `freerdp_settings_set_pointer',
    and to 0 if you don't. */
 #undef HAVE_DECL_FREERDP_SETTINGS_SET_POINTER
 
-/* Define to 1 if you have the declaration of 'winpr_aligned_free', and to 0
+/* Define to 1 if you have the declaration of `winpr_aligned_free', and to 0
    if you don't. */
 #undef HAVE_DECL_WINPR_ALIGNED_FREE
 
@@ -90,10 +90,10 @@
 /* Whether FreeRDPConvertColor() is defined */
 #undef HAVE_FREERDPCONVERTCOLOR
 
-/* Define to 1 if 'VerifyCertificateEx' is a member of 'freerdp'. */
+/* Define to 1 if `VerifyCertificateEx' is a member of `freerdp'. */
 #undef HAVE_FREERDP_VERIFYCERTIFICATEEX
 
-/* Define to 1 if you have the 'gettimeofday' function. */
+/* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -117,13 +117,13 @@
 /* Whether LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT is defined */
 #undef HAVE_LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT
 
-/* Define to 1 if you have the 'memmove' function. */
+/* Define to 1 if you have the `memmove' function. */
 #undef HAVE_MEMMOVE
 
-/* Define to 1 if you have the 'memset' function. */
+/* Define to 1 if you have the `memset' function. */
 #undef HAVE_MEMSET
 
-/* Define to 1 if you have the 'nanosleep' function. */
+/* Define to 1 if you have the `nanosleep' function. */
 #undef HAVE_NANOSLEEP
 
 /* Define to 1 if you have the <ossp/uuid.h> header file. */
@@ -138,35 +138,35 @@
 /* Whether poll() is defined */
 #undef HAVE_POLL
 
-/* Define to 1 if 'AllowUnanouncedOrdersFromServer' is a member of
-   'rdpSettings'. */
+/* Define to 1 if `AllowUnanouncedOrdersFromServer' is a member of
+   `rdpSettings'. */
 #undef HAVE_RDPSETTINGS_ALLOWUNANOUNCEDORDERSFROMSERVER
 
-/* Define to 1 if 'destHost' is a member of 'rfbClient'. */
+/* Define to 1 if `destHost' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_DESTHOST
 
-/* Define to 1 if 'destPort' is a member of 'rfbClient'. */
+/* Define to 1 if `destPort' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_DESTPORT
 
-/* Define to 1 if 'GetCredential' is a member of 'rfbClient'. */
+/* Define to 1 if `GetCredential' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_GETCREDENTIAL
 
-/* Define to 1 if 'LockWriteToTLS' is a member of 'rfbClient'. */
+/* Define to 1 if `LockWriteToTLS' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_LOCKWRITETOTLS
 
-/* Define to 1 if 'requestedResize' is a member of 'rfbClient'. */
+/* Define to 1 if `requestedResize' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_REQUESTEDRESIZE
 
-/* Define to 1 if 'screen' is a member of 'rfbClient'. */
+/* Define to 1 if `screen' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_SCREEN
 
-/* Define to 1 if 'UnlockWriteToTLS' is a member of 'rfbClient'. */
+/* Define to 1 if `UnlockWriteToTLS' is a member of `rfbClient'. */
 #undef HAVE_RFBCLIENT_UNLOCKWRITETOTLS
 
-/* Define to 1 if you have the 'sched_getaffinity' function. */
+/* Define to 1 if you have the `sched_getaffinity' function. */
 #undef HAVE_SCHED_GETAFFINITY
 
-/* Define to 1 if you have the 'select' function. */
+/* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
 
 /* Defined if freerdp_settings_set_pointer is available */
@@ -181,7 +181,7 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
-/* Define to 1 if you have the 'strdup' function. */
+/* Define to 1 if you have the `strdup' function. */
 #undef HAVE_STRDUP
 
 /* Define to 1 if you have the <strings.h> header file. */
@@ -271,7 +271,7 @@
 /* Defined if pointer.Set expects a const rdpPointer* parameter */
 #undef RDP_POINTER_SET_REQUIRES_CONST
 
-/* Define to 1 if all of the C89 standard headers exist (not just the ones
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
@@ -291,8 +291,8 @@
 /* Uses BSD-specific APIs (if available) */
 #undef __BSD_VISIBLE
 
-/* Define as 'unsigned int' if <stddef.h> doesn't define. */
+/* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
 
-/* Define as 'int' if <sys/types.h> doesn't define. */
+/* Define to `int' if <sys/types.h> does not define. */
 #undef ssize_t

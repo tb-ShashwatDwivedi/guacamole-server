@@ -27,7 +27,6 @@ uname -v = #91-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov 18 14:14:30 UTC 2025
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
-PATH: /root/.cursor-server/cli/servers/Stable-cf8353edc265f5e46b798bfb276861d0bf3bf120/server/bin/remote-cli/
 PATH: /usr/local/sbin/
 PATH: /usr/local/bin/
 PATH: /usr/sbin/
@@ -315,7 +314,7 @@ configure:12320: checking how to hardcode library paths into programs
 configure:12345: result: immediate
 configure:12447: checking for shl_load
 configure:12447: gcc -o conftest -g -O2   conftest.c  >&5
-/usr/bin/ld: /tmp/ccBw9E1f.o: in function `main':
+/usr/bin/ld: /tmp/ccQrZ2E9.o: in function `main':
 /opt/guacamole-server-1.6.0/conftest.c:50:(.text.startup+0xb): undefined reference to `shl_load'
 collect2: error: ld returned 1 exit status
 configure:12447: $? = 1
@@ -425,7 +424,7 @@ configure:12733: $? = 0
 configure:12751: result: yes
 configure:12756: checking whether a statically linked program can dlopen itself
 configure:12837: gcc -o conftest -g -O2  -DHAVE_DLFCN_H  -Wl,--export-dynamic -static conftest.c   >&5
-/usr/bin/ld: /tmp/ccIyhvXU.o: in function `main':
+/usr/bin/ld: /tmp/ccDLZJVM.o: in function `main':
 /opt/guacamole-server-1.6.0/conftest.c:12816:(.text.startup+0xd): warning: Using 'dlopen' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
 configure:12840: $? = 0
 conftest: undefined symbol: _fnord
@@ -2405,7 +2404,7 @@ configure:17511: $? = 0
 configure:17521: result: yes
 configure:17568: checking for gcry_control in -lssh2
 configure:17591: gcc -o conftest -g -O2   conftest.c -lssh2   >&5
-/usr/bin/ld: /tmp/ccvwTZrx.o: in function `main':
+/usr/bin/ld: /tmp/ccopiDO4.o: in function `main':
 /opt/guacamole-server-1.6.0/conftest.c:88:(.text.startup+0xb): undefined reference to `gcry_control'
 collect2: error: ld returned 1 exit status
 configure:17591: $? = 1
@@ -3083,51 +3082,37 @@ config.status:1265: creating src/protocols/ssh/Makefile
 config.status:1265: creating src/protocols/telnet/Makefile
 config.status:1265: creating src/protocols/vnc/Makefile
 config.status:1265: creating config.h
+config.status:1446: config.h is unchanged
 config.status:1494: executing depfiles commands
 config.status:1571: cd src/common       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/common/tests       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/common-ssh       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/common-ssh/tests       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/terminal       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/libguac       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/libguac/tests       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/guacd       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/guacenc       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/guaclog       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/pulse       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/protocols/kubernetes       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/protocols/kubernetes/tests       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/protocols/rdp       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/protocols/rdp/tests       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
-make: Nothing to be done for 'am--depfiles'.
 config.status:1576: $? = 0
 config.status:1571: cd src/protocols/ssh       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
 config.status:1576: $? = 0

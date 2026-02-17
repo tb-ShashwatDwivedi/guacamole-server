@@ -1,33 +1,49 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 #include "config.h"
 
+#include "command_logger.h"
 #include "ssh.h"
 #include "terminal/terminal.h"
 
 #include <guacamole/client.h>
 #include <guacamole/recording.h>
 #include <guacamole/user.h>
+#include <guacamole/socket.h>
+#include <guacamole/protocol.h>
+
 #include <libssh2.h>
 
 #include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+/*
+ * Command logger key for thread-local storage
+ */
+static pthread_key_t command_logger_key;
+static int command_logger_key_initialized = 0;
+
+/*
+ * Free function for command logger
+ */
+static void command_logger_free(void* data) {
+    if (data) {
+        guac_ssh_command_logger_free((command_logger*)data);
+    }
+}
+
+/*
+ * Initialize command logger key
+ */
+static void command_logger_initialize() {
+    if (!command_logger_key_initialized) {
+        pthread_key_create(&command_logger_key, command_logger_free);
+        command_logger_key_initialized = 1;
+    }
+}
 
 int guac_ssh_user_mouse_handler(guac_user* user, int x, int y, int mask) {
 
@@ -54,14 +70,61 @@ int guac_ssh_user_key_handler(guac_user* user, int keysym, int pressed) {
     guac_ssh_client* ssh_client = (guac_ssh_client*) client->data;
     guac_terminal* term = ssh_client->term;
 
+    /* Skip if terminal not yet ready */
+    if (term == NULL)
+        return 0;
+
+    /* Initialize command logger if needed */
+    command_logger_initialize();
+
+    /* Get or create command logger for this user */
+    command_logger* logger = (command_logger*) pthread_getspecific(command_logger_key);
+
+    if (logger == NULL) {
+        /* Try to get the actual username and hostname from the connection */
+        const char* username = "unknown";
+        const char* ssh_hostname = "unknown";
+        
+        /* Get username from ssh_client user structure */
+        if (ssh_client && ssh_client->user && ssh_client->user->username) {
+            username = ssh_client->user->username;
+            guac_client_log(client, GUAC_LOG_DEBUG, 
+                          "Command logger: Got username '%s' from SSH user", username);
+        } else {
+            guac_client_log(client, GUAC_LOG_DEBUG, 
+                          "Command logger: Using default username 'unknown'");
+        }
+        
+        /* Get SSH hostname from settings */
+        if (ssh_client && ssh_client->settings && ssh_client->settings->hostname) {
+            ssh_hostname = ssh_client->settings->hostname;
+            guac_client_log(client, GUAC_LOG_DEBUG, 
+                          "Command logger: Got SSH hostname '%s' from settings", ssh_hostname);
+        } else {
+            guac_client_log(client, GUAC_LOG_DEBUG, 
+                          "Command logger: Using default hostname 'unknown'");
+        }
+        
+        /* Create new logger with username and hostname */
+        logger = guac_ssh_command_logger_create(user, username, ssh_hostname);
+        
+        if (logger) {
+            pthread_setspecific(command_logger_key, logger);
+            guac_client_log(client, GUAC_LOG_INFO, 
+                          "Command logging started for user: %s on %s", 
+                          username, ssh_hostname);
+        }
+    }
+
+    /* Log the keystroke (only if pressed, not released) */
+    if (logger && pressed) {
+        guac_ssh_command_logger_key(logger, keysym, pressed);
+    }
+
     /* Report key state within recording */
     if (ssh_client->recording != NULL)
         guac_recording_report_key(ssh_client->recording,
                 keysym, pressed);
-
-    /* Skip if terminal not yet ready */
-    if (term == NULL)
-        return 0;
 
     /* Send key */
     guac_terminal_send_key(term, keysym, pressed);
@@ -93,4 +156,3 @@ int guac_ssh_user_size_handler(guac_user* user, int width, int height) {
 
     return 0;
 }
-

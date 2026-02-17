@@ -14,31 +14,6 @@
 
 
 
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# NOTE: Parts of this file (Makefile.am) are automatically transcluded verbatim
-# into Makefile.in. Though the build system (GNU Autotools) automatically adds
-# its own license boilerplate to the generated Makefile.in, that boilerplate
-# does not apply to the transcluded portions of Makefile.am which are licensed
-# to you by the ASF under the Apache License, Version 2.0, as described above.
-#
-
 
 
 am__is_gnu_make = { \
@@ -164,7 +139,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libguac_client_ssh_la_DEPENDENCIES =
 am__libguac_client_ssh_la_SOURCES_DIST = argv.c client.c clipboard.c \
 	command-acl.c input.c pipe.c settings.c sftp.c ssh.c ttymode.c \
-	user.c ssh_agent.c
+	user.c command_logger.c ssh_agent.c
 #am__objects_1 =  \
 #	libguac_client_ssh_la-ssh_agent.lo
 am_libguac_client_ssh_la_OBJECTS = libguac_client_ssh_la-argv.lo \
@@ -175,7 +150,7 @@ am_libguac_client_ssh_la_OBJECTS = libguac_client_ssh_la-argv.lo \
 	libguac_client_ssh_la-settings.lo \
 	libguac_client_ssh_la-sftp.lo libguac_client_ssh_la-ssh.lo \
 	libguac_client_ssh_la-ttymode.lo libguac_client_ssh_la-user.lo \
-	$(am__objects_1)
+	libguac_client_ssh_la-command_logger.lo $(am__objects_1)
 libguac_client_ssh_la_OBJECTS = $(am_libguac_client_ssh_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -204,6 +179,7 @@ am__depfiles_remade = ./$(DEPDIR)/libguac_client_ssh_la-argv.Plo \
 	./$(DEPDIR)/libguac_client_ssh_la-client.Plo \
 	./$(DEPDIR)/libguac_client_ssh_la-clipboard.Plo \
 	./$(DEPDIR)/libguac_client_ssh_la-command-acl.Plo \
+	./$(DEPDIR)/libguac_client_ssh_la-command_logger.Plo \
 	./$(DEPDIR)/libguac_client_ssh_la-input.Plo \
 	./$(DEPDIR)/libguac_client_ssh_la-pipe.Plo \
 	./$(DEPDIR)/libguac_client_ssh_la-settings.Plo \
@@ -240,7 +216,7 @@ am__can_run_installinfo = \
   esac
 am__noinst_HEADERS_DIST = argv.h client.h clipboard.h command-acl.h \
 	input.h pipe.h settings.h sftp.h ssh.h ttymode.h user.h \
-	ssh_agent.h
+	command_logger.h ssh_agent.h
 HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -434,15 +410,15 @@ target_alias =
 top_build_prefix = ../../../
 top_builddir = ../../..
 top_srcdir = ../../..
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign 
 ACLOCAL_AMFLAGS = -I m4
 lib_LTLIBRARIES = libguac-client-ssh.la
 libguac_client_ssh_la_SOURCES = argv.c client.c clipboard.c \
 	command-acl.c input.c pipe.c settings.c sftp.c ssh.c ttymode.c \
-	user.c $(am__append_1)
+	user.c command_logger.c $(am__append_1)
 noinst_HEADERS = argv.h client.h clipboard.h command-acl.h input.h \
 	pipe.h settings.h sftp.h ssh.h ttymode.h user.h \
-	$(am__append_2)
+	command_logger.h $(am__append_2)
 libguac_client_ssh_la_CFLAGS = \
     -Werror -Wall -Iinclude    \
     -I$(top_srcdir)/src/common-ssh       \
@@ -543,6 +519,7 @@ include ./$(DEPDIR)/libguac_client_ssh_la-argv.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_ssh_la-client.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_ssh_la-clipboard.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_ssh_la-command-acl.Plo # am--include-marker
+include ./$(DEPDIR)/libguac_client_ssh_la-command_logger.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_ssh_la-input.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_ssh_la-pipe.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_ssh_la-settings.Plo # am--include-marker
@@ -658,6 +635,13 @@ libguac_client_ssh_la-user.lo: user.c
 #	$(AM_V_CC)source='user.c' object='libguac_client_ssh_la-user.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_ssh_la_CFLAGS) $(CFLAGS) -c -o libguac_client_ssh_la-user.lo `test -f 'user.c' || echo '$(srcdir)/'`user.c
+
+libguac_client_ssh_la-command_logger.lo: command_logger.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_ssh_la_CFLAGS) $(CFLAGS) -MT libguac_client_ssh_la-command_logger.lo -MD -MP -MF $(DEPDIR)/libguac_client_ssh_la-command_logger.Tpo -c -o libguac_client_ssh_la-command_logger.lo `test -f 'command_logger.c' || echo '$(srcdir)/'`command_logger.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libguac_client_ssh_la-command_logger.Tpo $(DEPDIR)/libguac_client_ssh_la-command_logger.Plo
+#	$(AM_V_CC)source='command_logger.c' object='libguac_client_ssh_la-command_logger.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_ssh_la_CFLAGS) $(CFLAGS) -c -o libguac_client_ssh_la-command_logger.lo `test -f 'command_logger.c' || echo '$(srcdir)/'`command_logger.c
 
 libguac_client_ssh_la-ssh_agent.lo: ssh_agent.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_ssh_la_CFLAGS) $(CFLAGS) -MT libguac_client_ssh_la-ssh_agent.lo -MD -MP -MF $(DEPDIR)/libguac_client_ssh_la-ssh_agent.Tpo -c -o libguac_client_ssh_la-ssh_agent.lo `test -f 'ssh_agent.c' || echo '$(srcdir)/'`ssh_agent.c
@@ -803,6 +787,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-client.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-clipboard.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-command-acl.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-command_logger.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-input.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-pipe.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-settings.Plo
@@ -860,6 +845,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-client.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-clipboard.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-command-acl.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-command_logger.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-input.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-pipe.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_ssh_la-settings.Plo
