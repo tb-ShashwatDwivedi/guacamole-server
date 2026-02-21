@@ -318,7 +318,7 @@ COMMON_INCLUDE = -I$(top_srcdir)/src/common
 COMMON_LTLIB = $(top_builddir)/src/common/libguac_common.la
 COMMON_SSH_INCLUDE = -I$(top_srcdir)/src/common-ssh
 COMMON_SSH_LTLIB = $(top_builddir)/src/common-ssh/libguac_common_ssh.la
-CPP = gcc -E
+CPP = 
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
@@ -411,7 +411,7 @@ VERSION = 1.6.0
 VNC_LIBS =  -lvncclient
 VORBIS_LIBS =  -logg -lvorbis -lvorbisenc
 WEBP_LIBS =  -lwebp
-WEBSOCKETS_LIBS = 
+WEBSOCKETS_LIBS =  -lwebsockets
 WINSOCK_LIBS = 
 abs_builddir = /opt/guacamole-server-1.6.0/src/protocols/kubernetes
 abs_srcdir = /opt/guacamole-server-1.6.0/src/protocols/kubernetes
@@ -445,7 +445,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-init_dir = 
+init_dir = /etc/init.d
 install_sh = ${SHELL} /opt/guacamole-server-1.6.0/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
@@ -463,7 +463,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-systemd_dir = 
+systemd_dir = /lib/systemd/system
 target_alias = 
 top_build_prefix = ../../../
 top_builddir = ../../..
@@ -512,7 +512,7 @@ libguac_client_kubernetes_la_LDFLAGS = \
     -version-info 0:0:0                \
     -lpthread                     \
      -lssl -lcrypto                         \
-    
+     -lwebsockets
 
 all: all-recursive
 

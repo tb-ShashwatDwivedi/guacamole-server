@@ -101,7 +101,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Whether LCCSCF_USE_SSL is defined */
-/* #undef HAVE_LCCSCF_USE_SSL */
+#define HAVE_LCCSCF_USE_SSL /**/
 
 /* Whether libpthread was found */
 #define HAVE_LIBPTHREAD /**/
@@ -110,13 +110,13 @@
 #define HAVE_LIBUUID /**/
 
 /* Whether LWS_CALLBACK_CLIENT_CLOSED is defined */
-/* #undef HAVE_LWS_CALLBACK_CLIENT_CLOSED */
+#define HAVE_LWS_CALLBACK_CLIENT_CLOSED /**/
 
 /* Whether lws_callback_http_dummy() is defined */
-/* #undef HAVE_LWS_CALLBACK_HTTP_DUMMY */
+#define HAVE_LWS_CALLBACK_HTTP_DUMMY /**/
 
 /* Whether LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT is defined */
-/* #undef HAVE_LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT */
+#define HAVE_LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT /**/
 
 /* Define to 1 if you have the `memmove' function. */
 #define HAVE_MEMMOVE 1
