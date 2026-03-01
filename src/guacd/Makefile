@@ -271,7 +271,7 @@ COMMON_INCLUDE = -I$(top_srcdir)/src/common
 COMMON_LTLIB = $(top_builddir)/src/common/libguac_common.la
 COMMON_SSH_INCLUDE = -I$(top_srcdir)/src/common-ssh
 COMMON_SSH_LTLIB = $(top_builddir)/src/common-ssh/libguac_common_ssh.la
-CPP = 
+CPP = gcc -E
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
@@ -416,7 +416,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-systemd_dir = /lib/systemd/system
+systemd_dir = 
 target_alias = 
 top_build_prefix = ../../
 top_builddir = ../..
@@ -474,8 +474,8 @@ initdir = /etc/init.d
 init_SCRIPTS = init.d/guacd
 
 # Systemd service
-systemddir = /lib/systemd/system
-systemd_DATA = systemd/guacd.service
+#systemddir = 
+#systemd_DATA = systemd/guacd.service
 all: all-am
 
 .SUFFIXES:
@@ -1121,8 +1121,8 @@ init.d/guacd: init.d/guacd.in
 	sed -e 's,[@]sbindir[@],$(sbindir),g' < init.d/guacd.in > init.d/guacd
 	chmod +x init.d/guacd
 
-systemd/guacd.service: systemd/guacd.service.in
-	sed -e 's,[@]sbindir[@],$(sbindir),g' < systemd/guacd.service.in > systemd/guacd.service
+#systemd/guacd.service: systemd/guacd.service.in
+#	sed -e 's,[@]sbindir[@],$(sbindir),g' < systemd/guacd.service.in > systemd/guacd.service
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -2,10 +2,11 @@
 # ================================================
 # 
 # This file configures command access control lists (ACL) for SSH connections.
-# Rules can be defined at three levels (in order of priority):
+# Rules can be defined at four levels (in order of priority):
 #   1. Per-user (Guacamole web username)
-#   2. Per-connection (SSH hostname:username)
-#   3. Global (applies to all connections)
+#   2. Per-connection exact  (SSH hostname:sshusername)
+#   3. Per-connection host   (SSH hostname only — matches any SSH user)
+#   4. Global (applies to all connections)
 #
 # Installation:
 #   Copy this file to /etc/guacamole/command-acl.conf
@@ -43,25 +44,53 @@ blacklist=rm -rf,sudo,shutdown,reboot,halt,poweroff,init,userdel,useradd,passwd,
 blocked_message=\r\n*** Command blocked by security policy ***\r\n
 
 # ============================================================================
-# PER-CONNECTION RULES (SSH hostname:username)
+# PER-CONNECTION RULES
 # ============================================================================
-# Format: [connection:hostname:sshusername]
-# These rules override global rules for specific SSH connections
+# Two formats are supported:
+#
+#   [connection:hostname]
+#       Matches ANY SSH user connecting to that hostname/IP.
+#       Use this when you want to apply rules to a machine regardless of
+#       which SSH account is used.
+#
+#   [connection:hostname:sshusername]
+#       Matches only a specific SSH user on that hostname/IP.
+#       Takes priority over the hostname-only format above.
+#
+# Priority (highest to lowest):
+#   1. [user:guacamole_username]
+#   2. [connection:hostname:sshusername]
+#   3. [connection:hostname]
+#   4. [global]
+
+# --- Hostname-only examples (any SSH user on that host) ---
+
+[connection:192.168.0.100]
+# Block dangerous commands for ALL users on this host
+blacklist=rm -rf,sudo,shutdown,reboot,halt,poweroff
+blocked_message=\r\n*** Command blocked on this host ***\r\n
+
+[connection:production-server.example.com]
+# Strict read-only rules for all users on the production server
+whitelist=ls,cd,pwd,cat,grep,tail,head,less,ps,top,df,free
+blocked_message=\r\n*** Access denied on production server ***\r\n
+
+# --- Hostname + username examples (specific SSH user on a host) ---
 
 [connection:production-server.example.com:appuser]
-# Strict rules for production server
+# Override for appuser specifically on the production server
 blacklist=rm,mv,cp,sudo,chmod,chown,kill,pkill
 whitelist=ls,cd,pwd,cat,grep,tail,head,less,ps,top,df,free
 blocked_message=\r\n*** Access denied on production server ***\r\n
 
 [connection:dev-server.example.com:developer]
-# More permissive for development server
+# More permissive for the developer account on the dev server
 blacklist=sudo,shutdown,reboot,rm -rf /
 whitelist=
 blocked_message=\r\n*** Command not allowed ***\r\n
 
 [connection:backup-server.example.com:backup]
-# Read-only access for backup server
+# Read-only access for the backup account
 whitelist=ls,cd,cat,tar,gzip,find,stat,file
 blocked_message=\r\n*** Read-only access - command denied ***\r\n
 
@@ -101,10 +130,20 @@ blocked_message=\r\n*** Auditor access - command not allowed ***\r\n
 #blacklist=sudo,rm,mv,chmod,chown,kill,shutdown,reboot
 #blocked_message=\r\n*** Junior developer - please contact senior staff ***\r\n
 
-# Example 2: Database-only access
+# Example 2: Database-only access (specific user)
 #[connection:db-server.example.com:dbuser]
 #whitelist=psql,mysql,mongosh,redis-cli,ls,cd,pwd
 #blocked_message=\r\n*** Database access only ***\r\n
+
+# Example 5: Lock down an entire host regardless of SSH username
+#[connection:192.168.1.50]
+#blacklist=rm -rf,sudo,shutdown,reboot,dd,mkfs
+#blocked_message=\r\n*** Command blocked on this host ***\r\n
+
+# Example 6: Whitelist-only mode for a sensitive host (any user)
+#[connection:10.0.0.5]
+#whitelist=ls,cat,grep,tail,head,ps,df,free,uptime
+#blocked_message=\r\n*** Only read-only commands are permitted ***\r\n
 
 # Example 3: Monitoring user
 #[user:monitor]

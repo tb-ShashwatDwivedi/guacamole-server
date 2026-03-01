@@ -115,14 +115,15 @@ host_triplet = x86_64-pc-linux-gnu
 am__append_1 = src/common-ssh
 am__append_2 = src/terminal
 am__append_3 = src/pulse
-am__append_4 = src/protocols/kubernetes
-am__append_5 = src/protocols/rdp
-am__append_6 = src/protocols/ssh
-am__append_7 = src/protocols/telnet
-am__append_8 = src/protocols/vnc
-am__append_9 = src/guacd
-am__append_10 = src/guacenc
-am__append_11 = src/guaclog
+am__append_4 = src/protocols/dbshell
+am__append_5 = src/protocols/kubernetes
+am__append_6 = src/protocols/rdp
+am__append_7 = src/protocols/ssh
+am__append_8 = src/protocols/telnet
+am__append_9 = src/protocols/vnc
+am__append_10 = src/guacd
+am__append_11 = src/guacenc
+am__append_12 = src/guaclog
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -277,7 +278,7 @@ COMMON_INCLUDE = -I$(top_srcdir)/src/common
 COMMON_LTLIB = $(top_builddir)/src/common/libguac_common.la
 COMMON_SSH_INCLUDE = -I$(top_srcdir)/src/common-ssh
 COMMON_SSH_LTLIB = $(top_builddir)/src/common-ssh/libguac_common_ssh.la
-CPP = 
+CPP = gcc -E
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
@@ -422,7 +423,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-systemd_dir = /lib/systemd/system
+systemd_dir = 
 target_alias = 
 top_build_prefix = 
 top_builddir = .
@@ -439,6 +440,7 @@ DIST_SUBDIRS = \
     src/guacenc              \
     src/guaclog              \
     src/pulse                \
+    src/protocols/dbshell    \
     src/protocols/kubernetes \
     src/protocols/rdp        \
     src/protocols/ssh        \
@@ -448,7 +450,8 @@ DIST_SUBDIRS = \
 SUBDIRS = src/libguac src/common $(am__append_1) $(am__append_2) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(am__append_11)
+	$(am__append_9) $(am__append_10) $(am__append_11) \
+	$(am__append_12)
 EXTRA_DIST = \
     .dockerignore                    \
     CONTRIBUTING                     \

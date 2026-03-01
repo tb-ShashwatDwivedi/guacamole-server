@@ -137,6 +137,47 @@ static bool command_matches_pattern(const char* command, const char* pattern) {
 }
 
 /**
+ * Processes C-style escape sequences (\r, \n, \t, \\) in a string,
+ * returning a newly allocated string with the sequences replaced by their
+ * actual byte values. Used when loading blocked_message from the config file.
+ *
+ * @param str
+ *     The raw string possibly containing escape sequences.
+ *
+ * @return
+ *     Newly allocated string with escape sequences expanded, or NULL on error.
+ *     Caller must free with guac_mem_free().
+ */
+static char* process_escape_sequences(const char* str) {
+
+    if (str == NULL)
+        return NULL;
+
+    size_t len = strlen(str);
+    char* result = guac_mem_alloc(len + 1);
+    if (result == NULL)
+        return NULL;
+
+    int i = 0, j = 0;
+    while (str[i] != '\0') {
+        if (str[i] == '\\' && str[i + 1] != '\0') {
+            switch (str[i + 1]) {
+                case 'r':  result[j++] = '\r'; i += 2; break;
+                case 'n':  result[j++] = '\n'; i += 2; break;
+                case 't':  result[j++] = '\t'; i += 2; break;
+                case '\\': result[j++] = '\\'; i += 2; break;
+                default:   result[j++] = str[i++]; break;
+            }
+        }
+        else {
+            result[j++] = str[i++];
+        }
+    }
+    result[j] = '\0';
+    return result;
+}
+
+/**
  * Creates a new ACL rule with default values.
  *
  * @return
@@ -260,7 +301,7 @@ guac_ssh_acl_config* guac_ssh_acl_load_config(const char* config_path) {
                 }
                 else if (strcmp(key, "blocked_message") == 0 && *value != '\0') {
                     guac_mem_free(current_rule->blocked_message);
-                    current_rule->blocked_message = strdup(value);
+                    current_rule->blocked_message = process_escape_sequences(value);
                 }
             }
         }

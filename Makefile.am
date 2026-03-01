@@ -35,6 +35,7 @@ DIST_SUBDIRS =               \
     src/guacenc              \
     src/guaclog              \
     src/pulse                \
+    src/protocols/dbshell    \
     src/protocols/kubernetes \
     src/protocols/rdp        \
     src/protocols/ssh        \
@@ -55,6 +56,10 @@ endif
 
 if ENABLE_PULSE
 SUBDIRS += src/pulse
+endif
+
+if ENABLE_DBSHELL
+SUBDIRS += src/protocols/dbshell
 endif
 
 if ENABLE_KUBERNETES

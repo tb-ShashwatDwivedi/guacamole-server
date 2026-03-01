@@ -1369,6 +1369,14 @@ AM_CONDITIONAL([ENABLE_WEBSOCKETS],
 AC_SUBST(WEBSOCKETS_LIBS)
 
 #
+# Database Shell (dbshell)
+# Requires only the terminal emulator (pango), no external DB libs needed —
+# the actual CLI clients (psql, mysql, etc.) are exec'd at runtime.
+#
+
+AM_CONDITIONAL([ENABLE_DBSHELL], [test "x${have_terminal}" = "xyes"])
+
+#
 # Kubernetes
 #
 
@@ -1445,6 +1453,7 @@ AC_CONFIG_FILES([Makefile
                  src/guaclog/Makefile
                  src/guaclog/man/guaclog.1
                  src/pulse/Makefile
+                 src/protocols/dbshell/Makefile
                  src/protocols/kubernetes/Makefile
                  src/protocols/kubernetes/tests/Makefile
                  src/protocols/rdp/Makefile
@@ -1458,6 +1467,7 @@ AC_OUTPUT
 # Protocol build status
 #
 
+AM_COND_IF([ENABLE_DBSHELL],    [build_dbshell=yes],    [build_dbshell=no])
 AM_COND_IF([ENABLE_KUBERNETES], [build_kubernetes=yes], [build_kubernetes=no])
 AM_COND_IF([ENABLE_RDP],        [build_rdp=yes],        [build_rdp=no])
 AM_COND_IF([ENABLE_SSH],        [build_ssh=yes],        [build_ssh=no])
@@ -1519,6 +1529,7 @@ $PACKAGE_NAME version $PACKAGE_VERSION
 
    Protocol support:
 
+      Database Shell  ${build_dbshell}
       Kubernetes .... ${build_kubernetes}
       RDP ........... ${build_rdp}
       SSH ........... ${build_ssh}

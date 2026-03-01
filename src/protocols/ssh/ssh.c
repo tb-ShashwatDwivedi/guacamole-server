@@ -236,27 +236,34 @@
                                                          command_buffer, client)) {
                              blocked = true;
                              
-                             /* Clear the typed command from terminal line */
-                             /* Send backspaces to erase the command that was echoed */
-                             for (int j = 0; j < command_len; j++) {
-                                 const char backspace_seq[] = "\b \b";
-                                 pthread_mutex_lock(&(ssh_client->term_channel_lock));
-                                 libssh2_channel_write(ssh_client->term_channel, backspace_seq, 3);
-                                 pthread_mutex_unlock(&(ssh_client->term_channel_lock));
-                             }
-                             
-                             /* Send newline to move to next line */
-                             pthread_mutex_lock(&(ssh_client->term_channel_lock));
-                             libssh2_channel_write(ssh_client->term_channel, "\r\n", 2);
-                             pthread_mutex_unlock(&(ssh_client->term_channel_lock));
-                             
-                             /* Send denial message to terminal */
+                             /* Erase the echoed command from the terminal
+                              * immediately using ANSI escape sequences. This
+                              * avoids the race condition caused by sending
+                              * backspaces through the SSH channel and waiting
+                              * for the async echo to arrive from the output
+                              * thread before writing the blocked message. */
+                             guac_terminal_write(ssh_client->term, "\r\033[2K", 5);
+
+                             /* Write blocked message. Escape sequences (\r\n
+                              * etc.) were already expanded at config load
+                              * time, so the stored string contains real bytes. */
                              const char* blocked_msg = settings->acl_rule->blocked_message;
                              if (blocked_msg != NULL) {
-                                 guac_terminal_write(ssh_client->term, 
+                                 guac_terminal_write(ssh_client->term,
                                      blocked_msg, strlen(blocked_msg));
                              }
-                             
+
+                             /* Send Ctrl+C to the SSH channel to abort the
+                              * partial command sitting in the PTY input buffer.
+                              * The shell will cancel the line and print a new
+                              * prompt. Its "^C" echo arrives asynchronously via
+                              * the output thread and appears after our message,
+                              * so there is no race with the display above. */
+                             const char ctrl_c = '\x03';
+                             pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                             libssh2_channel_write(ssh_client->term_channel, &ctrl_c, 1);
+                             pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+
                              guac_client_log(client, GUAC_LOG_WARNING,
                                  "Blocked command for user %s: %s", 
                                  settings->guacamole_username ? 

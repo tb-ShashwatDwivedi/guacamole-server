@@ -19,21 +19,32 @@ struct guac_ssh_acl_config;
 typedef struct command_logger {
     char buffer[CMD_BUFFER_SIZE];
     int buffer_pos;
-    char display_buffer[CMD_BUFFER_SIZE];    // Track what's displayed (for tab completion)
+    char display_buffer[CMD_BUFFER_SIZE];   /* Track what's displayed (for tab completion) */
     int display_pos;
-    int cursor_pos;                          // Current cursor position in buffer
-    int in_tab_completion;                   // Flag to track if we're in tab completion
+    int cursor_pos;                         /* Current cursor position in buffer */
+    int in_tab_completion;                  /* Flag to track if we're in tab completion */
     time_t command_start;
-    char username[256];
+
+    /* Guacamole user_id — unique protocol-level ID for the user accessing
+     * the asset (user->user_id).  Used as the identity column in the log. */
+    char guac_user_id[256];
+
+    /* Human-readable Guacamole username (user->info.name) used exclusively
+     * for per-user ACL rule resolution. */
+    char guac_username[256];
+
+    /* SSH username used to authenticate against the remote host. */
+    char ssh_username[256];
+
     char remote_ip[64];
-    char connection_id[CONNECTION_ID_LEN];  // Unique per connection from Guacamole
-    char session_id[SESSION_ID_LEN];        // Detailed session identifier
-    guac_client* client;                     // Reference to client for logging and ACL
-    struct guac_ssh_acl_config* acl_config;  // ACL configuration
-    char ssh_hostname[256];                  // SSH hostname for ACL matching
-    FILE* log_file;                          // Main command log
-    FILE* alert_file;                        // Dangerous commands log
-    FILE* restricted_file;                   // ACL-restricted commands log
+    char connection_id[CONNECTION_ID_LEN];  /* Unique per connection from Guacamole */
+    char session_id[SESSION_ID_LEN];        /* Detailed session identifier */
+    guac_client* client;                    /* Reference to client for logging and ACL */
+    struct guac_ssh_acl_config* acl_config; /* ACL configuration */
+    char ssh_hostname[256];                 /* SSH hostname for ACL matching */
+    FILE* log_file;                         /* Main command log */
+    FILE* alert_file;                       /* Dangerous commands log */
+    FILE* restricted_file;                  /* ACL-restricted commands log */
 } command_logger;
 
 // Initialize logger for a user

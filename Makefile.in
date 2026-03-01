@@ -115,14 +115,15 @@ host_triplet = @host@
 @ENABLE_COMMON_SSH_TRUE@am__append_1 = src/common-ssh
 @ENABLE_TERMINAL_TRUE@am__append_2 = src/terminal
 @ENABLE_PULSE_TRUE@am__append_3 = src/pulse
-@ENABLE_KUBERNETES_TRUE@am__append_4 = src/protocols/kubernetes
-@ENABLE_RDP_TRUE@am__append_5 = src/protocols/rdp
-@ENABLE_SSH_TRUE@am__append_6 = src/protocols/ssh
-@ENABLE_TELNET_TRUE@am__append_7 = src/protocols/telnet
-@ENABLE_VNC_TRUE@am__append_8 = src/protocols/vnc
-@ENABLE_GUACD_TRUE@am__append_9 = src/guacd
-@ENABLE_GUACENC_TRUE@am__append_10 = src/guacenc
-@ENABLE_GUACLOG_TRUE@am__append_11 = src/guaclog
+@ENABLE_DBSHELL_TRUE@am__append_4 = src/protocols/dbshell
+@ENABLE_KUBERNETES_TRUE@am__append_5 = src/protocols/kubernetes
+@ENABLE_RDP_TRUE@am__append_6 = src/protocols/rdp
+@ENABLE_SSH_TRUE@am__append_7 = src/protocols/ssh
+@ENABLE_TELNET_TRUE@am__append_8 = src/protocols/telnet
+@ENABLE_VNC_TRUE@am__append_9 = src/protocols/vnc
+@ENABLE_GUACD_TRUE@am__append_10 = src/guacd
+@ENABLE_GUACENC_TRUE@am__append_11 = src/guacenc
+@ENABLE_GUACLOG_TRUE@am__append_12 = src/guaclog
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -439,6 +440,7 @@ DIST_SUBDIRS = \
     src/guacenc              \
     src/guaclog              \
     src/pulse                \
+    src/protocols/dbshell    \
     src/protocols/kubernetes \
     src/protocols/rdp        \
     src/protocols/ssh        \
@@ -448,7 +450,8 @@ DIST_SUBDIRS = \
 SUBDIRS = src/libguac src/common $(am__append_1) $(am__append_2) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(am__append_11)
+	$(am__append_9) $(am__append_10) $(am__append_11) \
+	$(am__append_12)
 EXTRA_DIST = \
     .dockerignore                    \
     CONTRIBUTING                     \
