@@ -2,11 +2,12 @@
 # ================================================
 # 
 # This file configures command access control lists (ACL) for SSH connections.
-# Rules can be defined at four levels (in order of priority):
-#   1. Per-user (Guacamole web username)
-#   2. Per-connection exact  (SSH hostname:sshusername)
-#   3. Per-connection host   (SSH hostname only — matches any SSH user)
-#   4. Global (applies to all connections)
+# Rules can be defined at five levels (in order of priority):
+#   1. Per-user (Guacamole web username)                — [user:guac_username]
+#   2. Per-connection exact SSH user (hostname:sshuser) — [connection:host:sshuser]
+#   3. Per-connection Guacamole user (hostname:guacuser)— [connection:host:guacuser]
+#   4. Per-connection host only (any user)              — [connection:host]
+#   5. Global (applies to all connections)              — [global]
 #
 # Installation:
 #   Copy this file to /etc/guacamole/command-acl.conf
@@ -46,24 +47,29 @@ blocked_message=\r\n*** Command blocked by security policy ***\r\n
 # ============================================================================
 # PER-CONNECTION RULES
 # ============================================================================
-# Two formats are supported:
+# Three formats are supported:
 #
 #   [connection:hostname]
-#       Matches ANY SSH user connecting to that hostname/IP.
-#       Use this when you want to apply rules to a machine regardless of
-#       which SSH account is used.
+#       Matches ANY user (SSH or Guacamole) connecting to that hostname/IP.
+#       Use this to lock down an entire machine regardless of who connects.
 #
 #   [connection:hostname:sshusername]
-#       Matches only a specific SSH user on that hostname/IP.
-#       Takes priority over the hostname-only format above.
+#       Matches only when the SSH login username equals sshusername.
+#       Tried FIRST before the Guacamole username variant below.
+#
+#   [connection:hostname:guacamole_username]
+#       Matches when the Guacamole web account username equals guacamole_username
+#       (regardless of which SSH user they log in as on the target host).
+#       Tried SECOND, after the SSH username lookup fails.
 #
 # Priority (highest to lowest):
-#   1. [user:guacamole_username]
-#   2. [connection:hostname:sshusername]
-#   3. [connection:hostname]
-#   4. [global]
+#   1. [user:guacamole_username]          — per Guacamole account, any host
+#   2. [connection:hostname:sshusername]  — exact SSH user on exact host
+#   3. [connection:hostname:guacusername] — Guacamole account on exact host
+#   4. [connection:hostname]              — any user on that host
+#   5. [global]                           — everyone
 
-# --- Hostname-only examples (any SSH user on that host) ---
+# --- Hostname-only examples (any user on that host) ---
 
 [connection:192.168.0.100]
 # Block dangerous commands for ALL users on this host
@@ -75,24 +81,38 @@ blocked_message=\r\n*** Command blocked on this host ***\r\n
 whitelist=ls,cd,pwd,cat,grep,tail,head,less,ps,top,df,free
 blocked_message=\r\n*** Access denied on production server ***\r\n
 
-# --- Hostname + username examples (specific SSH user on a host) ---
+# --- Hostname + SSH username examples (specific SSH login on a host) ---
 
 [connection:production-server.example.com:appuser]
-# Override for appuser specifically on the production server
+# Override for SSH user "appuser" specifically on the production server
 blacklist=rm,mv,cp,sudo,chmod,chown,kill,pkill
 whitelist=ls,cd,pwd,cat,grep,tail,head,less,ps,top,df,free
 blocked_message=\r\n*** Access denied on production server ***\r\n
 
 [connection:dev-server.example.com:developer]
-# More permissive for the developer account on the dev server
+# More permissive for the "developer" SSH user on the dev server
 blacklist=sudo,shutdown,reboot,rm -rf /
 whitelist=
 blocked_message=\r\n*** Command not allowed ***\r\n
 
 [connection:backup-server.example.com:backup]
-# Read-only access for the backup account
+# Read-only access for the "backup" SSH user
 whitelist=ls,cd,cat,tar,gzip,find,stat,file
 blocked_message=\r\n*** Read-only access - command denied ***\r\n
+
+# --- Hostname + Guacamole username examples ---
+# Use this when multiple Guacamole users share the same SSH account (e.g. root)
+# and you want per-Guacamole-user restrictions on a specific host.
+
+[connection:192.168.0.10:Test9]
+# Guacamole account "Test9" connecting to 192.168.0.10 (SSH user can be anything)
+blacklist=ls,touch,rm
+blocked_message=\r\n*** Command blocked for your account on this host ***\r\n
+
+[connection:192.168.0.10:junior-dev]
+# Guacamole account "junior-dev" connecting to 192.168.0.10
+blacklist=sudo,rm,mv,cp,chmod,chown,kill,shutdown,reboot
+blocked_message=\r\n*** Restricted access - contact your administrator ***\r\n
 
 # ============================================================================
 # PER-USER RULES (Guacamole web username)
@@ -130,10 +150,15 @@ blocked_message=\r\n*** Auditor access - command not allowed ***\r\n
 #blacklist=sudo,rm,mv,chmod,chown,kill,shutdown,reboot
 #blocked_message=\r\n*** Junior developer - please contact senior staff ***\r\n
 
-# Example 2: Database-only access (specific user)
+# Example 2: Database-only access (specific SSH user)
 #[connection:db-server.example.com:dbuser]
 #whitelist=psql,mysql,mongosh,redis-cli,ls,cd,pwd
 #blocked_message=\r\n*** Database access only ***\r\n
+
+# Example 2b: Restrict a Guacamole account on a specific host (SSH user = root or any)
+#[connection:192.168.0.50:alice]
+#blacklist=sudo,rm -rf,dd,shutdown,reboot
+#blocked_message=\r\n*** Command blocked for your account ***\r\n
 
 # Example 5: Lock down an entire host regardless of SSH username
 #[connection:192.168.1.50]

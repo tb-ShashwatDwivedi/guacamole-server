@@ -330,7 +330,7 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
     /* Priority 2: Check for connection-specific rule */
     if (hostname != NULL) {
 
-        /* Pass 1: exact hostname:username match */
+        /* Pass 1: exact hostname:ssh_username match */
         if (ssh_username != NULL) {
             char connection_key[512];
             snprintf(connection_key, sizeof(connection_key), "%s:%s",
@@ -338,6 +338,22 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
 
             for (int i = 0; i < config->connection_rule_count; i++) {
                 if (strcmp(config->connection_rules[i].key, connection_key) == 0) {
+                    return &config->connection_rules[i].rule;
+                }
+            }
+        }
+
+        /* Pass 1b: exact hostname:guacamole_username match
+         * Allows rules like [connection:192.168.0.10:Test9] where Test9 is
+         * the Guacamole account name, not the SSH login username. */
+        if (guacamole_username != NULL) {
+            char guac_connection_key[512];
+            snprintf(guac_connection_key, sizeof(guac_connection_key), "%s:%s",
+                     hostname, guacamole_username);
+
+            for (int i = 0; i < config->connection_rule_count; i++) {
+                if (strcmp(config->connection_rules[i].key,
+                           guac_connection_key) == 0) {
                     return &config->connection_rules[i].rule;
                 }
             }

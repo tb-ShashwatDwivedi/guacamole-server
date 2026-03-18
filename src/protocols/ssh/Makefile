@@ -423,7 +423,8 @@ libguac_client_ssh_la_CFLAGS = \
     -Werror -Wall -Iinclude    \
     -I$(top_srcdir)/src/common-ssh       \
     -I$(top_srcdir)/src/libguac          \
-    -I$(top_srcdir)/src/terminal $(PANGO_CFLAGS) $(PANGOCAIRO_CFLAGS) $(COMMON_INCLUDE)
+    -I$(top_srcdir)/src/terminal $(PANGO_CFLAGS) $(PANGOCAIRO_CFLAGS) $(COMMON_INCLUDE)         \
+    -I/usr/include/postgresql
 
 libguac_client_ssh_la_LIBADD = \
     $(top_builddir)/src/common/libguac_common.la             \
@@ -435,7 +436,9 @@ libguac_client_ssh_la_LDFLAGS = \
     -version-info 0:0:0         \
     -lpthread              \
      -lssh2                  \
-     -lssl -lcrypto
+     -lssl -lcrypto                  \
+    -L/usr/lib/x86_64-linux-gnu \
+    -lpq
 
 all: all-am
 

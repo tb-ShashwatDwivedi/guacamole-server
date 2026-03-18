@@ -65,7 +65,15 @@ typedef struct guac_ssh_acl_rule {
 typedef struct guac_ssh_acl_connection_rule {
 
     /**
-     * Key in format "hostname:sshusername".
+     * Key in one of three formats:
+     *   "hostname"                — matches any SSH user on that host
+     *   "hostname:sshusername"    — matches a specific SSH login user
+     *   "hostname:guacusername"   — matches a specific Guacamole account user
+     *
+     * Lookup priority (highest first):
+     *   1. hostname:ssh_username
+     *   2. hostname:guacamole_username
+     *   3. hostname (no username)
      */
     char* key;
 

@@ -41,7 +41,8 @@ libguac_client_ssh_la_CFLAGS = \
     -Werror -Wall -Iinclude    \
     @COMMON_SSH_INCLUDE@       \
     @LIBGUAC_INCLUDE@          \
-    @TERMINAL_INCLUDE@
+    @TERMINAL_INCLUDE@         \
+    -I/usr/include/postgresql
 
 libguac_client_ssh_la_LIBADD = \
     @COMMON_LTLIB@             \
@@ -53,4 +54,6 @@ libguac_client_ssh_la_LDFLAGS = \
     -version-info 0:0:0         \
     @PTHREAD_LIBS@              \
     @SSH_LIBS@                  \
-    @SSL_LIBS@
+    @SSL_LIBS@                  \
+    -L/usr/lib/x86_64-linux-gnu \
+    -lpq

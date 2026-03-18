@@ -3,14 +3,15 @@
 
 #include <guacamole/user.h>
 #include <guacamole/client.h>
+#include <libpq-fe.h>
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
 
-// Forward declaration
+/* Forward declaration */
 struct guac_ssh_acl_config;
 
-// Circular buffer for command building
+/* Circular buffer for command building */
 #define CMD_BUFFER_SIZE 4096
 #define MAX_CMD_LENGTH 1024
 #define SESSION_ID_LEN 256
@@ -36,15 +37,17 @@ typedef struct command_logger {
     /* SSH username used to authenticate against the remote host. */
     char ssh_username[256];
 
+    /* Current working directory on the remote host, updated by tracking
+     * cd commands.  Logged as execution_path.  Starts at "~". */
+    char current_path[1024];
+
     char remote_ip[64];
     char connection_id[CONNECTION_ID_LEN];  /* Unique per connection from Guacamole */
     char session_id[SESSION_ID_LEN];        /* Detailed session identifier */
     guac_client* client;                    /* Reference to client for logging and ACL */
     struct guac_ssh_acl_config* acl_config; /* ACL configuration */
     char ssh_hostname[256];                 /* SSH hostname for ACL matching */
-    FILE* log_file;                         /* Main command log */
-    FILE* alert_file;                       /* Dangerous commands log */
-    FILE* restricted_file;                  /* ACL-restricted commands log */
+    PGconn* db_conn;                        /* PostgreSQL connection for command_logs */
 } command_logger;
 
 // Initialize logger for a user
