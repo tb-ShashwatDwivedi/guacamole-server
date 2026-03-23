@@ -209,8 +209,15 @@ static void get_client_ip(guac_user* user, char* ip_buffer, size_t buffer_size) 
                         "command_logger: unable to get real IP");
 }
 
-static int is_dangerous_command(const char* command) {
+/**
+ * Checks if command is dangerous. Uses configurable list from acl_config
+ * when available, otherwise uses built-in defaults.
+ */
+static int is_dangerous_command(command_logger* logger, const char* command) {
     if (!command) return 0;
+    if (logger->acl_config != NULL)
+        return guac_ssh_acl_is_dangerous_command(logger->acl_config, command) ? 1 : 0;
+    /* Fallback when no ACL config loaded */
     const char* dangerous_patterns[] = {
         "rm -rf", "rm -rf /", "rm -rf *",
         "dd if=/dev/zero", "mkfs", "format",
@@ -417,7 +424,7 @@ void guac_ssh_command_logger_key(command_logger* logger, int keysym,
                     is_restricted = true;
             }
 
-            bool is_dangerous = !is_restricted && is_dangerous_command(clean_cmd);
+            bool is_dangerous = !is_restricted && is_dangerous_command(logger, clean_cmd);
 
             const char* cmd_type;
             const char* cmd_status;

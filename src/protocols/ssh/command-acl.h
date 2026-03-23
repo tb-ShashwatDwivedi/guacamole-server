@@ -131,6 +131,17 @@ typedef struct guac_ssh_acl_config {
      */
     int user_rule_count;
 
+    /**
+     * Comma-separated list of dangerous command patterns (global only).
+     * If NULL, built-in default patterns are used.
+     */
+    char* dangerous_commands;
+
+    /**
+     * If true, prompt "Are you sure? (yes/no)" before executing dangerous commands.
+     */
+    bool dangerous_require_confirmation;
+
 } guac_ssh_acl_config;
 
 /**
@@ -186,6 +197,32 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
  */
 bool guac_ssh_acl_check_command(guac_ssh_acl_rule* rule,
         const char* command, guac_client* client);
+
+/**
+ * Checks if a command matches dangerous patterns (configurable or built-in).
+ *
+ * @param config
+ *     The loaded ACL configuration (may be NULL).
+ *
+ * @param command
+ *     The command string to check.
+ *
+ * @return
+ *     true if the command is dangerous, false otherwise.
+ */
+bool guac_ssh_acl_is_dangerous_command(guac_ssh_acl_config* config,
+        const char* command);
+
+/**
+ * Returns whether confirmation is required before executing dangerous commands.
+ *
+ * @param config
+ *     The loaded ACL configuration (may be NULL).
+ *
+ * @return
+ *     true if confirmation prompt should be shown, false otherwise.
+ */
+bool guac_ssh_acl_require_confirmation(guac_ssh_acl_config* config);
 
 /**
  * Frees all memory associated with an ACL configuration.

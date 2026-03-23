@@ -1,9 +1,9 @@
 libguac_la-fips.lo: fips.c /usr/include/stdc-predef.h ../../config.h \
- guacamole/fips.h /usr/include/openssl/opensslv.h \
- /usr/include/openssl/macros.h \
- /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
- /usr/include/x86_64-linux-gnu/openssl/configuration.h \
- /usr/include/openssl/evp.h \
+ guacamole/fips.h /usr/local/include/openssl/opensslv.h \
+ /usr/local/include/openssl/macros.h \
+ /usr/local/include/openssl/opensslconf.h \
+ /usr/local/include/openssl/configuration.h \
+ /usr/local/include/openssl/evp.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -29,7 +29,8 @@ libguac_la-fips.lo: fips.c /usr/include/stdc-predef.h ../../config.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
  /usr/include/x86_64-linux-gnu/bits/stdio2-decl.h \
  /usr/include/x86_64-linux-gnu/bits/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/stdio2.h /usr/include/openssl/types.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2.h \
+ /usr/local/include/openssl/types.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
@@ -39,16 +40,17 @@ libguac_la-fips.lo: fips.c /usr/include/stdc-predef.h ../../config.h \
  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
- /usr/include/openssl/e_os2.h /usr/include/inttypes.h \
+ /usr/local/include/openssl/e_os2.h /usr/include/inttypes.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /usr/include/openssl/safestack.h /usr/include/openssl/stack.h \
- /usr/include/openssl/core.h /usr/include/openssl/core_dispatch.h \
- /usr/include/openssl/symhacks.h /usr/include/openssl/bio.h \
- /usr/include/openssl/crypto.h /usr/include/stdlib.h \
+ /usr/local/include/openssl/safestack.h \
+ /usr/local/include/openssl/stack.h /usr/local/include/openssl/core.h \
+ /usr/local/include/openssl/core_dispatch.h \
+ /usr/local/include/openssl/symhacks.h /usr/local/include/openssl/bio.h \
+ /usr/local/include/openssl/crypto.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
@@ -83,26 +85,27 @@ libguac_la-fips.lo: fips.c /usr/include/stdc-predef.h ../../config.h \
  /usr/include/x86_64-linux-gnu/bits/timex.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
- /usr/include/openssl/cryptoerr.h /usr/include/openssl/cryptoerr_legacy.h \
- /usr/include/pthread.h /usr/include/sched.h \
- /usr/include/x86_64-linux-gnu/bits/sched.h \
+ /usr/local/include/openssl/cryptoerr.h \
+ /usr/local/include/openssl/cryptoerr_legacy.h /usr/include/pthread.h \
+ /usr/include/sched.h /usr/include/x86_64-linux-gnu/bits/sched.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
  /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
  /usr/include/x86_64-linux-gnu/bits/setjmp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
- /usr/include/openssl/bioerr.h /usr/include/openssl/evperr.h \
- /usr/include/openssl/params.h /usr/include/openssl/bn.h \
- /usr/include/openssl/bnerr.h /usr/include/openssl/objects.h \
- /usr/include/openssl/obj_mac.h /usr/include/openssl/asn1.h \
- /usr/include/openssl/asn1err.h /usr/include/openssl/objectserr.h
+ /usr/local/include/openssl/bioerr.h /usr/local/include/openssl/evperr.h \
+ /usr/local/include/openssl/params.h /usr/local/include/openssl/bn.h \
+ /usr/local/include/openssl/bnerr.h /usr/local/include/openssl/objects.h \
+ /usr/local/include/openssl/obj_mac.h /usr/local/include/openssl/asn1.h \
+ /usr/local/include/openssl/asn1err.h \
+ /usr/local/include/openssl/objectserr.h
 /usr/include/stdc-predef.h:
 ../../config.h:
 guacamole/fips.h:
-/usr/include/openssl/opensslv.h:
-/usr/include/openssl/macros.h:
-/usr/include/x86_64-linux-gnu/openssl/opensslconf.h:
-/usr/include/x86_64-linux-gnu/openssl/configuration.h:
-/usr/include/openssl/evp.h:
+/usr/local/include/openssl/opensslv.h:
+/usr/local/include/openssl/macros.h:
+/usr/local/include/openssl/opensslconf.h:
+/usr/local/include/openssl/configuration.h:
+/usr/local/include/openssl/evp.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
 /usr/include/stdio.h:
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
@@ -131,7 +134,7 @@ guacamole/fips.h:
 /usr/include/x86_64-linux-gnu/bits/stdio2-decl.h:
 /usr/include/x86_64-linux-gnu/bits/stdio.h:
 /usr/include/x86_64-linux-gnu/bits/stdio2.h:
-/usr/include/openssl/types.h:
+/usr/local/include/openssl/types.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h:
 /usr/include/limits.h:
@@ -142,7 +145,7 @@ guacamole/fips.h:
 /usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
 /usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
 /usr/include/x86_64-linux-gnu/bits/uio_lim.h:
-/usr/include/openssl/e_os2.h:
+/usr/local/include/openssl/e_os2.h:
 /usr/include/inttypes.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
 /usr/include/stdint.h:
@@ -150,13 +153,13 @@ guacamole/fips.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-least.h:
-/usr/include/openssl/safestack.h:
-/usr/include/openssl/stack.h:
-/usr/include/openssl/core.h:
-/usr/include/openssl/core_dispatch.h:
-/usr/include/openssl/symhacks.h:
-/usr/include/openssl/bio.h:
-/usr/include/openssl/crypto.h:
+/usr/local/include/openssl/safestack.h:
+/usr/local/include/openssl/stack.h:
+/usr/local/include/openssl/core.h:
+/usr/local/include/openssl/core_dispatch.h:
+/usr/local/include/openssl/symhacks.h:
+/usr/local/include/openssl/bio.h:
+/usr/local/include/openssl/crypto.h:
 /usr/include/stdlib.h:
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
@@ -195,8 +198,8 @@ guacamole/fips.h:
 /usr/include/x86_64-linux-gnu/bits/timex.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
-/usr/include/openssl/cryptoerr.h:
-/usr/include/openssl/cryptoerr_legacy.h:
+/usr/local/include/openssl/cryptoerr.h:
+/usr/local/include/openssl/cryptoerr_legacy.h:
 /usr/include/pthread.h:
 /usr/include/sched.h:
 /usr/include/x86_64-linux-gnu/bits/sched.h:
@@ -204,13 +207,13 @@ guacamole/fips.h:
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 /usr/include/x86_64-linux-gnu/bits/setjmp.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
-/usr/include/openssl/bioerr.h:
-/usr/include/openssl/evperr.h:
-/usr/include/openssl/params.h:
-/usr/include/openssl/bn.h:
-/usr/include/openssl/bnerr.h:
-/usr/include/openssl/objects.h:
-/usr/include/openssl/obj_mac.h:
-/usr/include/openssl/asn1.h:
-/usr/include/openssl/asn1err.h:
-/usr/include/openssl/objectserr.h:
+/usr/local/include/openssl/bioerr.h:
+/usr/local/include/openssl/evperr.h:
+/usr/local/include/openssl/params.h:
+/usr/local/include/openssl/bn.h:
+/usr/local/include/openssl/bnerr.h:
+/usr/local/include/openssl/objects.h:
+/usr/local/include/openssl/obj_mac.h:
+/usr/local/include/openssl/asn1.h:
+/usr/local/include/openssl/asn1err.h:
+/usr/local/include/openssl/objectserr.h:

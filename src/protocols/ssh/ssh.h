@@ -101,6 +101,27 @@ typedef struct guac_ssh_client {
      */
     guac_recording* recording;
 
+    /**
+     * Dangerous command confirmation state.
+     * When true, input is buffered for yes/no response instead of sent to SSH.
+     */
+    bool confirm_pending;
+
+    /**
+     * Command awaiting confirmation (when confirm_pending is true).
+     */
+    char confirm_command[8192];
+
+    /**
+     * User's response to confirmation prompt.
+     */
+    char confirm_response[256];
+
+    /**
+     * Length of response in confirm_response.
+     */
+    int confirm_response_len;
+
 } guac_ssh_client ;
 
 /**

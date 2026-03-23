@@ -44,6 +44,18 @@ blacklist=rm -rf,sudo,shutdown,reboot,halt,poweroff,init,userdel,useradd,passwd,
 # Message shown when a command is blocked
 blocked_message=\r\n*** Command blocked by security policy ***\r\n
 
+# ----------------------------------------------------------------------------
+# DANGEROUS COMMAND CONFIGURATION (global only)
+# ----------------------------------------------------------------------------
+# dangerous_commands: Comma-separated list of patterns. Commands matching these
+#   are flagged as "dangerous" for audit logging. If not set, built-in defaults
+#   are used (rm -rf, dd, shutdown, reboot, etc.).
+# dangerous_require_confirmation: If true, user must type "yes" or "no" before
+#   executing any dangerous command. Helps prevent accidental execution.
+#
+#dangerous_commands=rm -rf,rm -rf /,dd if=/dev/zero,mkfs,shutdown,reboot,halt,kill -9,pkill,DROP DATABASE,DROP TABLE
+#dangerous_require_confirmation=true
+
 # ============================================================================
 # PER-CONNECTION RULES
 # ============================================================================

@@ -57,9 +57,10 @@
  #include <stdbool.h>
  #include <stddef.h>
  #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- #include <sys/socket.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <sys/socket.h>
  #include <sys/time.h>
  
  /**
@@ -199,133 +200,178 @@
  
  }
  
- void* ssh_input_thread(void* data) {
- 
-     guac_client* client = (guac_client*) data;
-     guac_ssh_client* ssh_client = (guac_ssh_client*) client->data;
-     guac_ssh_settings* settings = ssh_client->settings;
- 
-     char buffer[8192];
-     int bytes_read;
- 
-     /* Command buffer for ACL checking - stores the actual command text */
-     char command_buffer[8192] = {0};
-     int command_len = 0;
-     
-     bool acl_enabled = (settings->acl_rule != NULL);
- 
-     /* Write all data read */
-     while ((bytes_read = guac_terminal_read_stdin(ssh_client->term, buffer, sizeof(buffer))) > 0) {
-         
-         /* If ACL is enabled, buffer input and check commands */
-         if (acl_enabled) {
-             
-             /* Process each character */
-             for (int i = 0; i < bytes_read; i++) {
-                 char c = buffer[i];
-                 
-                 /* Check for Enter key (CR or LF) indicating command completion */
-                 if (c == '\r' || c == '\n') {
-                     /* Null-terminate the command */
-                     command_buffer[command_len] = '\0';
-                     
-                     /* Check if command should be blocked */
-                     bool blocked = false;
-                     if (command_len > 0) {
-                         if (!guac_ssh_acl_check_command(settings->acl_rule, 
-                                                         command_buffer, client)) {
-                             blocked = true;
-                             
-                             /* Erase the echoed command from the terminal
-                              * immediately using ANSI escape sequences. This
-                              * avoids the race condition caused by sending
-                              * backspaces through the SSH channel and waiting
-                              * for the async echo to arrive from the output
-                              * thread before writing the blocked message. */
-                             guac_terminal_write(ssh_client->term, "\r\033[2K", 5);
+#define CONFIRM_PROMPT "\r\nAre you sure you want to execute this dangerous command? (yes/no): "
+#define CONFIRM_CANCELLED "\r\nCommand cancelled.\r\n"
 
-                             /* Write blocked message. Escape sequences (\r\n
-                              * etc.) were already expanded at config load
-                              * time, so the stored string contains real bytes. */
-                             const char* blocked_msg = settings->acl_rule->blocked_message;
-                             if (blocked_msg != NULL) {
-                                 guac_terminal_write(ssh_client->term,
-                                     blocked_msg, strlen(blocked_msg));
-                             }
+void* ssh_input_thread(void* data) {
 
-                             /* Send Ctrl+C to the SSH channel to abort the
-                              * partial command sitting in the PTY input buffer.
-                              * The shell will cancel the line and print a new
-                              * prompt. Its "^C" echo arrives asynchronously via
-                              * the output thread and appears after our message,
-                              * so there is no race with the display above. */
-                             const char ctrl_c = '\x03';
-                             pthread_mutex_lock(&(ssh_client->term_channel_lock));
-                             libssh2_channel_write(ssh_client->term_channel, &ctrl_c, 1);
-                             pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+    guac_client* client = (guac_client*) data;
+    guac_ssh_client* ssh_client = (guac_ssh_client*) client->data;
+    guac_ssh_settings* settings = ssh_client->settings;
 
-                             guac_client_log(client, GUAC_LOG_WARNING,
-                                 "Blocked command for user %s: %s", 
-                                 settings->guacamole_username ? 
-                                     settings->guacamole_username : "unknown",
-                                 command_buffer);
-                         }
-                     }
-                     
-                     if (!blocked) {
-                         /* Command allowed - send Enter to SSH */
-                         pthread_mutex_lock(&(ssh_client->term_channel_lock));
-                         libssh2_channel_write(ssh_client->term_channel, &c, 1);
-                         pthread_mutex_unlock(&(ssh_client->term_channel_lock));
-                     }
-                     
-                     /* Reset buffers for next command */
-                     command_len = 0;
-                     memset(command_buffer, 0, sizeof(command_buffer));
-                 }
-                 /* Handle backspace/delete characters */
-                 else if (c == 0x7F || c == 0x08) {
-                     /* Remove character from command buffer */
-                     if (command_len > 0) {
-                         command_len--;
-                         command_buffer[command_len] = '\0';
-                     }
-                     
-                     /* Send backspace to SSH for echo */
-                     pthread_mutex_lock(&(ssh_client->term_channel_lock));
-                     libssh2_channel_write(ssh_client->term_channel, &c, 1);
-                     pthread_mutex_unlock(&(ssh_client->term_channel_lock));
-                 }
-                 else {
-                     /* Accumulate character in command buffer for ACL checking */
-                     if (command_len < sizeof(command_buffer) - 1) {
-                         command_buffer[command_len++] = c;
-                     }
-                     
-                     /* Send character immediately to SSH for echo */
-                     pthread_mutex_lock(&(ssh_client->term_channel_lock));
-                     libssh2_channel_write(ssh_client->term_channel, &c, 1);
-                     pthread_mutex_unlock(&(ssh_client->term_channel_lock));
-                 }
-             }
-         }
-         else {
-             /* No ACL - send data directly to SSH channel */
-             pthread_mutex_lock(&(ssh_client->term_channel_lock));
-             libssh2_channel_write(ssh_client->term_channel, buffer, bytes_read);
-             pthread_mutex_unlock(&(ssh_client->term_channel_lock));
-         }
- 
-         /* Make sure ssh_input_thread can be terminated anyway */
-         if (client->state == GUAC_CLIENT_STOPPING)
-             break;
-     }
- 
-     /* Stop the client so that ssh_client_thread can be terminated */
-     guac_client_stop(client);
-     return NULL;
- 
- }
+    char buffer[8192];
+    int bytes_read;
+
+    /* Command buffer for ACL/dangerous checking */
+    char command_buffer[8192] = {0};
+    int command_len = 0;
+    
+    bool acl_enabled = (settings->acl_rule != NULL);
+    bool dangerous_confirm_enabled = (settings->acl_config != NULL &&
+            guac_ssh_acl_require_confirmation(settings->acl_config));
+    bool cmd_check_enabled = acl_enabled || dangerous_confirm_enabled;
+
+    while ((bytes_read = guac_terminal_read_stdin(ssh_client->term, buffer, sizeof(buffer))) > 0) {
+        
+        /* Handle confirmation mode first (yes/no response) */
+        if (ssh_client->confirm_pending) {
+            for (int i = 0; i < bytes_read; i++) {
+                char c = buffer[i];
+                if (c == '\r' || c == '\n') {
+                    ssh_client->confirm_response[ssh_client->confirm_response_len] = '\0';
+                    /* Trim and compare */
+                    char* resp = ssh_client->confirm_response;
+                    while (*resp == ' ' || *resp == '\t') resp++;
+                    bool is_yes = (strcasecmp(resp, "yes") == 0 || strcasecmp(resp, "y") == 0);
+                    bool is_no  = (strcasecmp(resp, "no") == 0  || strcasecmp(resp, "n") == 0);
+                    
+                    /* Echo newline so response appears on its own line */
+                    guac_terminal_write(ssh_client->term, "\r\n", 2);
+                    
+                    if (is_yes) {
+                        /* Command is already in remote buffer - just send Enter to execute */
+                        pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                        libssh2_channel_write(ssh_client->term_channel, "\n", 1);
+                        pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+                    } else {
+                        /* Cancel: send Ctrl+C to clear remote buffer, then show message */
+                        const char ctrl_c = '\x03';
+                        pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                        libssh2_channel_write(ssh_client->term_channel, &ctrl_c, 1);
+                        pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+                        guac_terminal_write(ssh_client->term, CONFIRM_CANCELLED,
+                                sizeof(CONFIRM_CANCELLED) - 1);
+                        if (!is_no) {
+                            guac_client_log(client, GUAC_LOG_DEBUG,
+                                    "Dangerous command confirmation: invalid response '%s'",
+                                    ssh_client->confirm_response);
+                        }
+                    }
+                    
+                    ssh_client->confirm_pending = false;
+                    ssh_client->confirm_response_len = 0;
+                    memset(ssh_client->confirm_response, 0, sizeof(ssh_client->confirm_response));
+                } else if (c == 0x7F || c == 0x08) {
+                    if (ssh_client->confirm_response_len > 0) {
+                        ssh_client->confirm_response[--ssh_client->confirm_response_len] = '\0';
+                        /* Erase character from display */
+                        guac_terminal_write(ssh_client->term, "\b \b", 3);
+                    }
+                } else if (ssh_client->confirm_response_len < (int)sizeof(ssh_client->confirm_response) - 1
+                        && c >= 0x20 && c <= 0x7E) {
+                    ssh_client->confirm_response[ssh_client->confirm_response_len++] = c;
+                    ssh_client->confirm_response[ssh_client->confirm_response_len] = '\0';
+                    /* Echo character so user sees their input */
+                    guac_terminal_write(ssh_client->term, &c, 1);
+                }
+            }
+            if (client->state == GUAC_CLIENT_STOPPING)
+                break;
+            continue;
+        }
+        
+        /* If command checking enabled, buffer input and check commands */
+        if (cmd_check_enabled) {
+            for (int i = 0; i < bytes_read; i++) {
+                char c = buffer[i];
+                
+                if (c == '\r' || c == '\n') {
+                    command_buffer[command_len] = '\0';
+                    bool blocked = false;
+                    bool needs_confirm = false;
+                    
+                    if (command_len > 0) {
+                        /* ACL check first */
+                        if (acl_enabled && settings->acl_rule != NULL) {
+                            if (!guac_ssh_acl_check_command(settings->acl_rule,
+                                        command_buffer, client)) {
+                                blocked = true;
+                            }
+                        }
+                        
+                        /* Dangerous command confirmation (only if not ACL-blocked) */
+                        if (!blocked && dangerous_confirm_enabled
+                                && guac_ssh_acl_is_dangerous_command(settings->acl_config,
+                                    command_buffer)) {
+                            needs_confirm = true;
+                        }
+                    }
+                    
+                    if (blocked) {
+                        guac_terminal_write(ssh_client->term, "\r\033[2K", 5);
+                        const char* blocked_msg = settings->acl_rule->blocked_message;
+                        if (blocked_msg != NULL) {
+                            guac_terminal_write(ssh_client->term,
+                                    blocked_msg, strlen(blocked_msg));
+                        }
+                        const char ctrl_c = '\x03';
+                        pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                        libssh2_channel_write(ssh_client->term_channel, &ctrl_c, 1);
+                        pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+                        guac_client_log(client, GUAC_LOG_WARNING,
+                                "Blocked command for user %s: %s",
+                                settings->guacamole_username ?
+                                    settings->guacamole_username : "unknown",
+                                command_buffer);
+                    } else if (needs_confirm) {
+                        /* Keep command visible - append prompt on new line.
+                         * Command remains in remote buffer (we never sent Enter).
+                         * User sees: command\nAre you sure... (yes/no): */
+                        guac_terminal_write(ssh_client->term, CONFIRM_PROMPT,
+                                sizeof(CONFIRM_PROMPT) - 1);
+                        strncpy(ssh_client->confirm_command, command_buffer,
+                                sizeof(ssh_client->confirm_command) - 1);
+                        ssh_client->confirm_command[sizeof(ssh_client->confirm_command) - 1] = '\0';
+                        ssh_client->confirm_pending = true;
+                        ssh_client->confirm_response_len = 0;
+                        memset(ssh_client->confirm_response, 0, sizeof(ssh_client->confirm_response));
+                    } else {
+                        /* Command allowed - send Enter to SSH */
+                        pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                        libssh2_channel_write(ssh_client->term_channel, &c, 1);
+                        pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+                    }
+                    
+                    command_len = 0;
+                    memset(command_buffer, 0, sizeof(command_buffer));
+                } else if (c == 0x7F || c == 0x08) {
+                    if (command_len > 0)
+                        command_buffer[--command_len] = '\0';
+                    pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                    libssh2_channel_write(ssh_client->term_channel, &c, 1);
+                    pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+                } else {
+                    if (command_len < (int)sizeof(command_buffer) - 1)
+                        command_buffer[command_len++] = c;
+                    pthread_mutex_lock(&(ssh_client->term_channel_lock));
+                    libssh2_channel_write(ssh_client->term_channel, &c, 1);
+                    pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+                }
+            }
+        } else {
+            pthread_mutex_lock(&(ssh_client->term_channel_lock));
+            libssh2_channel_write(ssh_client->term_channel, buffer, bytes_read);
+            pthread_mutex_unlock(&(ssh_client->term_channel_lock));
+        }
+
+        if (client->state == GUAC_CLIENT_STOPPING)
+            break;
+    }
+
+    guac_client_stop(client);
+    return NULL;
+
+}
  
  void* ssh_client_thread(void* data) {
  

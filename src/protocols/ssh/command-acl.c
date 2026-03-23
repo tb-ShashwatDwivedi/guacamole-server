@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 /**
  * Trims leading and trailing whitespace from a string in-place.
@@ -303,12 +304,83 @@ guac_ssh_acl_config* guac_ssh_acl_load_config(const char* config_path) {
                     guac_mem_free(current_rule->blocked_message);
                     current_rule->blocked_message = process_escape_sequences(value);
                 }
+                /* Global-only: dangerous command configuration */
+                else if (strcmp(current_section, "global") == 0) {
+                    if (strcmp(key, "dangerous_commands") == 0 && *value != '\0') {
+                        guac_mem_free(config->dangerous_commands);
+                        config->dangerous_commands = strdup(value);
+                    }
+                    else if (strcmp(key, "dangerous_require_confirmation") == 0) {
+                        config->dangerous_require_confirmation =
+                            (strcasecmp(value, "true") == 0 ||
+                             strcasecmp(value, "yes") == 0 ||
+                             strcmp(value, "1") == 0);
+                    }
+                }
             }
         }
     }
     
     fclose(file);
     return config;
+}
+
+/**
+ * Built-in dangerous command patterns (used when dangerous_commands not in config).
+ */
+static const char* const GUAC_SSH_ACL_DEFAULT_DANGEROUS[] = {
+    "rm -rf", "rm -rf /", "rm -rf *",
+    "dd if=/dev/zero", "mkfs", "format",
+    "chmod 777 /", "chown -R",
+    "kill -9", "pkill", "killall",
+    "shutdown", "reboot", "halt",
+    "iptables -F", "ufw disable",
+    "systemctl stop", "service stop",
+    "DROP DATABASE", "DROP TABLE", "DELETE FROM",
+    NULL
+};
+
+static bool command_matches_dangerous_list(const char* command,
+        const char* pattern_list) {
+    if (command == NULL || *command == '\0')
+        return false;
+    char* list_copy = strdup(pattern_list);
+    if (list_copy == NULL)
+        return false;
+    char* token = strtok(list_copy, ",");
+    bool found = false;
+    while (token != NULL && !found) {
+        char* pattern = trim_whitespace(token);
+        if (*pattern != '\0' && strstr(command, pattern) != NULL)
+            found = true;
+        token = strtok(NULL, ",");
+    }
+    guac_mem_free(list_copy);
+    return found;
+}
+
+static bool command_matches_builtin_dangerous(const char* command) {
+    for (int i = 0; GUAC_SSH_ACL_DEFAULT_DANGEROUS[i] != NULL; i++) {
+        if (strstr(command, GUAC_SSH_ACL_DEFAULT_DANGEROUS[i]) != NULL)
+            return true;
+    }
+    return false;
+}
+
+bool guac_ssh_acl_is_dangerous_command(guac_ssh_acl_config* config,
+        const char* command) {
+    if (command == NULL || *command == '\0')
+        return false;
+    if (config != NULL && config->dangerous_commands != NULL
+            && *config->dangerous_commands != '\0') {
+        return command_matches_dangerous_list(command,
+                config->dangerous_commands);
+    }
+    return command_matches_builtin_dangerous(command);
+}
+
+bool guac_ssh_acl_require_confirmation(guac_ssh_acl_config* config) {
+    return config != NULL && config->dangerous_require_confirmation;
 }
 
 guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
@@ -448,6 +520,8 @@ void guac_ssh_acl_free_config(guac_ssh_acl_config* config) {
     
     if (config == NULL)
         return;
+    
+    guac_mem_free(config->dangerous_commands);
     
     /* Free global rule */
     if (config->global != NULL)

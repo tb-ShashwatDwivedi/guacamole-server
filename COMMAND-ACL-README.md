@@ -120,6 +120,18 @@ blocked_message=User-specific message
 - **`whitelist`**: Comma-separated list of command patterns to allow (if set, ONLY these commands are allowed)
 - **`blocked_message`**: Custom message displayed when a command is blocked
 
+### Dangerous Command Configuration (Global Only)
+
+- **`dangerous_commands`**: Comma-separated list of patterns for commands considered "dangerous". Used for audit logging and optional confirmation. If not set, built-in defaults apply (rm -rf, dd, shutdown, reboot, etc.).
+- **`dangerous_require_confirmation`**: When set to `true` or `yes`, users must type "yes" or "no" before executing any dangerous command. Helps prevent accidental execution.
+
+Example:
+```ini
+[global]
+dangerous_commands=rm -rf,rm -rf /,dd if=/dev/zero,mkfs,shutdown,reboot,halt,kill -9,pkill,DROP DATABASE
+dangerous_require_confirmation=true
+```
+
 ### Pattern Matching
 
 - **Substring matching**: Pattern "rm" matches "rm", "rm -rf", "arm"
