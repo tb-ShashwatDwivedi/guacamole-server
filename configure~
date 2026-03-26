@@ -667,6 +667,8 @@ ENABLE_GUACD_FALSE
 ENABLE_GUACD_TRUE
 ENABLE_KUBERNETES_FALSE
 ENABLE_KUBERNETES_TRUE
+ENABLE_DBSHELL_FALSE
+ENABLE_DBSHELL_TRUE
 WEBSOCKETS_LIBS
 ENABLE_WEBSOCKETS_FALSE
 ENABLE_WEBSOCKETS_TRUE
@@ -17979,6 +17981,21 @@ fi
 
 
 #
+# Database Shell (dbshell)
+# Requires only the terminal emulator (pango), no external DB libs needed —
+# the actual CLI clients (psql, mysql, etc.) are exec'd at runtime.
+#
+
+ if test "x${have_terminal}" = "xyes"; then
+  ENABLE_DBSHELL_TRUE=
+  ENABLE_DBSHELL_FALSE='#'
+else
+  ENABLE_DBSHELL_TRUE='#'
+  ENABLE_DBSHELL_FALSE=
+fi
+
+
+#
 # Kubernetes
 #
 
@@ -18077,7 +18094,7 @@ fi
 # Output Makefiles
 #
 
-ac_config_files="$ac_config_files Makefile doc/libguac/Doxyfile doc/libguac-terminal/Doxyfile src/common/Makefile src/common/tests/Makefile src/common-ssh/Makefile src/common-ssh/tests/Makefile src/terminal/Makefile src/libguac/Makefile src/libguac/tests/Makefile src/guacd/Makefile src/guacd/man/guacd.8 src/guacd/man/guacd.conf.5 src/guacenc/Makefile src/guacenc/man/guacenc.1 src/guaclog/Makefile src/guaclog/man/guaclog.1 src/pulse/Makefile src/protocols/kubernetes/Makefile src/protocols/kubernetes/tests/Makefile src/protocols/rdp/Makefile src/protocols/rdp/tests/Makefile src/protocols/ssh/Makefile src/protocols/telnet/Makefile src/protocols/vnc/Makefile"
+ac_config_files="$ac_config_files Makefile doc/libguac/Doxyfile doc/libguac-terminal/Doxyfile src/common/Makefile src/common/tests/Makefile src/common-ssh/Makefile src/common-ssh/tests/Makefile src/terminal/Makefile src/libguac/Makefile src/libguac/tests/Makefile src/guacd/Makefile src/guacd/man/guacd.8 src/guacd/man/guacd.conf.5 src/guacenc/Makefile src/guacenc/man/guacenc.1 src/guaclog/Makefile src/guaclog/man/guaclog.1 src/pulse/Makefile src/protocols/dbshell/Makefile src/protocols/kubernetes/Makefile src/protocols/kubernetes/tests/Makefile src/protocols/rdp/Makefile src/protocols/rdp/tests/Makefile src/protocols/ssh/Makefile src/protocols/telnet/Makefile src/protocols/vnc/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18290,6 +18307,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ENABLE_WEBSOCKETS_TRUE}" && test -z "${ENABLE_WEBSOCKETS_FALSE}"; then
   as_fn_error $? "conditional \"ENABLE_WEBSOCKETS\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${ENABLE_DBSHELL_TRUE}" && test -z "${ENABLE_DBSHELL_FALSE}"; then
+  as_fn_error $? "conditional \"ENABLE_DBSHELL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ENABLE_KUBERNETES_TRUE}" && test -z "${ENABLE_KUBERNETES_FALSE}"; then
@@ -19201,6 +19222,7 @@ do
     "src/guaclog/Makefile") CONFIG_FILES="$CONFIG_FILES src/guaclog/Makefile" ;;
     "src/guaclog/man/guaclog.1") CONFIG_FILES="$CONFIG_FILES src/guaclog/man/guaclog.1" ;;
     "src/pulse/Makefile") CONFIG_FILES="$CONFIG_FILES src/pulse/Makefile" ;;
+    "src/protocols/dbshell/Makefile") CONFIG_FILES="$CONFIG_FILES src/protocols/dbshell/Makefile" ;;
     "src/protocols/kubernetes/Makefile") CONFIG_FILES="$CONFIG_FILES src/protocols/kubernetes/Makefile" ;;
     "src/protocols/kubernetes/tests/Makefile") CONFIG_FILES="$CONFIG_FILES src/protocols/kubernetes/tests/Makefile" ;;
     "src/protocols/rdp/Makefile") CONFIG_FILES="$CONFIG_FILES src/protocols/rdp/Makefile" ;;
@@ -20491,6 +20513,11 @@ fi
 # Protocol build status
 #
 
+if test -z "$ENABLE_DBSHELL_TRUE"; then :
+  build_dbshell=yes
+else
+  build_dbshell=no
+fi
 if test -z "$ENABLE_KUBERNETES_TRUE"; then :
   build_kubernetes=yes
 else
@@ -20596,6 +20623,7 @@ $PACKAGE_NAME version $PACKAGE_VERSION
 
    Protocol support:
 
+      Database Shell  ${build_dbshell}
       Kubernetes .... ${build_kubernetes}
       RDP ........... ${build_rdp}
       SSH ........... ${build_ssh}

@@ -498,7 +498,7 @@ guac_telnet_settings* guac_telnet_parse_args(guac_user* user,
     /* Parse key event inclusion flag */
     settings->recording_include_keys =
         guac_user_parse_args_boolean(user, GUAC_TELNET_CLIENT_ARGS, argv,
-                IDX_RECORDING_INCLUDE_KEYS, false);
+                IDX_RECORDING_INCLUDE_KEYS, true);
 
     /* Parse path creation flag */
     settings->create_recording_path =

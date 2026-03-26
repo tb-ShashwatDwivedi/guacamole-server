@@ -187,7 +187,7 @@ guac_dbshell_settings* guac_dbshell_parse_args(guac_user* user,
 
     settings->recording_include_keys = guac_user_parse_args_boolean(user,
             GUAC_DBSHELL_CLIENT_ARGS, argv, IDX_RECORDING_INCLUDE_KEYS,
-            false);
+            true);
 
     settings->recording_write_existing = guac_user_parse_args_boolean(user,
             GUAC_DBSHELL_CLIENT_ARGS, argv, IDX_RECORDING_WRITE_EXISTING,

@@ -516,10 +516,10 @@ guac_ssh_settings* guac_ssh_parse_args(guac_user* user,
         guac_user_parse_args_boolean(user, GUAC_SSH_CLIENT_ARGS, argv,
                 IDX_RECORDING_EXCLUDE_MOUSE, false);
 
-    /* Parse key event inclusion flag */
+    /* Parse key event inclusion flag (default on: required for keystroke audit logs) */
     settings->recording_include_keys =
         guac_user_parse_args_boolean(user, GUAC_SSH_CLIENT_ARGS, argv,
-                IDX_RECORDING_INCLUDE_KEYS, false);
+                IDX_RECORDING_INCLUDE_KEYS, true);
 
     /* Parse path creation flag */
     settings->create_recording_path =

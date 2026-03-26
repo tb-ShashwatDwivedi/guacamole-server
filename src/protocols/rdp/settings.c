@@ -572,11 +572,10 @@ enum RDP_ARGS_IDX {
 
     /**
      * Whether keys pressed and released should be included in the session
-     * recording. Key events are NOT included by default within the recording,
-     * as doing so has privacy and security implications. Including key events
-     * may be necessary in certain auditing contexts, but should only be done
-     * with caution. Key events can easily contain sensitive information, such
-     * as passwords, credit card numbers, etc.
+     * recording. Key events are included by default so session recordings can
+     * be audited for keystrokes; set to "false" to disable (recommended for
+     * high-sensitivity environments where passwords may be typed). Key events
+     * can contain sensitive information.
      */
     IDX_RECORDING_INCLUDE_KEYS,
 
@@ -1194,10 +1193,10 @@ guac_rdp_settings* guac_rdp_parse_args(guac_user* user,
         guac_user_parse_args_boolean(user, GUAC_RDP_CLIENT_ARGS, argv,
                 IDX_RECORDING_EXCLUDE_TOUCH, 0);
 
-    /* Parse key event inclusion flag */
+    /* Parse key event inclusion flag (default on: required for keystroke audit logs) */
     settings->recording_include_keys =
         guac_user_parse_args_boolean(user, GUAC_RDP_CLIENT_ARGS, argv,
-                IDX_RECORDING_INCLUDE_KEYS, 0);
+                IDX_RECORDING_INCLUDE_KEYS, 1);
 
     /* Parse path creation flag */
     settings->create_recording_path =
