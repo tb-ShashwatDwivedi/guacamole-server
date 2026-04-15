@@ -155,6 +155,7 @@ libguac_client_dbshell_la_DEPENDENCIES =
 am_libguac_client_dbshell_la_OBJECTS =  \
 	libguac_client_dbshell_la-client.lo \
 	libguac_client_dbshell_la-clipboard.lo \
+	libguac_client_dbshell_la-command-acl.lo \
 	libguac_client_dbshell_la-dbshell.lo \
 	libguac_client_dbshell_la-input.lo \
 	libguac_client_dbshell_la-settings.lo \
@@ -187,6 +188,7 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
 	./$(DEPDIR)/libguac_client_dbshell_la-client.Plo \
 	./$(DEPDIR)/libguac_client_dbshell_la-clipboard.Plo \
+	./$(DEPDIR)/libguac_client_dbshell_la-command-acl.Plo \
 	./$(DEPDIR)/libguac_client_dbshell_la-dbshell.Plo \
 	./$(DEPDIR)/libguac_client_dbshell_la-input.Plo \
 	./$(DEPDIR)/libguac_client_dbshell_la-settings.Plo \
@@ -387,7 +389,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-init_dir = /etc/init.d
+init_dir = 
 install_sh = ${SHELL} /opt/guacamole-server-1.6.0/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
@@ -405,7 +407,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-systemd_dir = 
+systemd_dir = /usr/lib/systemd/system
 target_alias = 
 top_build_prefix = ../../../
 top_builddir = ../../..
@@ -420,6 +422,7 @@ lib_LTLIBRARIES = libguac-client-dbshell.la
 libguac_client_dbshell_la_SOURCES = \
     client.c                        \
     clipboard.c                     \
+    command-acl.c                   \
     dbshell.c                       \
     input.c                         \
     settings.c                      \
@@ -428,6 +431,7 @@ libguac_client_dbshell_la_SOURCES = \
 noinst_HEADERS = \
     client.h     \
     clipboard.h  \
+    command-acl.h \
     dbshell.h    \
     input.h      \
     settings.h   \
@@ -529,6 +533,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/libguac_client_dbshell_la-client.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_dbshell_la-clipboard.Plo # am--include-marker
+include ./$(DEPDIR)/libguac_client_dbshell_la-command-acl.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_dbshell_la-dbshell.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_dbshell_la-input.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_dbshell_la-settings.Plo # am--include-marker
@@ -577,6 +582,13 @@ libguac_client_dbshell_la-clipboard.lo: clipboard.c
 #	$(AM_V_CC)source='clipboard.c' object='libguac_client_dbshell_la-clipboard.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_dbshell_la_CFLAGS) $(CFLAGS) -c -o libguac_client_dbshell_la-clipboard.lo `test -f 'clipboard.c' || echo '$(srcdir)/'`clipboard.c
+
+libguac_client_dbshell_la-command-acl.lo: command-acl.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_dbshell_la_CFLAGS) $(CFLAGS) -MT libguac_client_dbshell_la-command-acl.lo -MD -MP -MF $(DEPDIR)/libguac_client_dbshell_la-command-acl.Tpo -c -o libguac_client_dbshell_la-command-acl.lo `test -f 'command-acl.c' || echo '$(srcdir)/'`command-acl.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libguac_client_dbshell_la-command-acl.Tpo $(DEPDIR)/libguac_client_dbshell_la-command-acl.Plo
+#	$(AM_V_CC)source='command-acl.c' object='libguac_client_dbshell_la-command-acl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_dbshell_la_CFLAGS) $(CFLAGS) -c -o libguac_client_dbshell_la-command-acl.lo `test -f 'command-acl.c' || echo '$(srcdir)/'`command-acl.c
 
 libguac_client_dbshell_la-dbshell.lo: dbshell.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_dbshell_la_CFLAGS) $(CFLAGS) -MT libguac_client_dbshell_la-dbshell.lo -MD -MP -MF $(DEPDIR)/libguac_client_dbshell_la-dbshell.Tpo -c -o libguac_client_dbshell_la-dbshell.lo `test -f 'dbshell.c' || echo '$(srcdir)/'`dbshell.c
@@ -741,6 +753,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-client.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-clipboard.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-command-acl.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-dbshell.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-input.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-settings.Plo
@@ -792,6 +805,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-client.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-clipboard.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-command-acl.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-dbshell.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-input.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_dbshell_la-settings.Plo

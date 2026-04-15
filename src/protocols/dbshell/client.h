@@ -20,6 +20,7 @@
 #ifndef GUAC_DBSHELL_CLIENT_H
 #define GUAC_DBSHELL_CLIENT_H
 
+#include "command-acl.h"
 #include "settings.h"
 #include "terminal/terminal.h"
 
@@ -27,6 +28,12 @@
 #include <guacamole/recording.h>
 
 #include <pthread.h>
+
+/**
+ * Maximum size of the SQL statement accumulation buffer.
+ * Covers even the largest practical multi-line SQL statements.
+ */
+#define GUAC_DBSHELL_SQL_BUFFER_SIZE 65536
 
 /**
  * Per-connection state for the dbshell protocol plugin.
@@ -65,6 +72,32 @@ typedef struct guac_dbshell_client {
      * Optional session recording, or NULL when recording is not enabled.
      */
     guac_recording* recording;
+
+    /**
+     * ACL configuration loaded from /etc/guacamole/command-acl.conf, or NULL
+     * if the file is absent or unparseable. When non-NULL, SQL statements are
+     * checked against blacklist/whitelist rules before being forwarded to the
+     * database CLI subprocess.
+     */
+    guac_ssh_acl_config* acl_config;
+
+    /**
+     * Accumulation buffer for the current multi-line SQL statement.
+     * Characters are appended as the user types and cleared after each
+     * complete statement (or on Ctrl+C).
+     */
+    char sql_buffer[GUAC_DBSHELL_SQL_BUFFER_SIZE];
+
+    /**
+     * Number of bytes currently held in sql_buffer.
+     */
+    int sql_buffer_pos;
+
+    /**
+     * Guacamole web-interface username of the connecting user. Populated
+     * from user->info.name when the owner joins. Used for ACL rule lookup.
+     */
+    char guac_username[256];
 
 } guac_dbshell_client;
 

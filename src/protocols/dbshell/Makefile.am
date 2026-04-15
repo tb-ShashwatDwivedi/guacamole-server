@@ -28,6 +28,7 @@ lib_LTLIBRARIES = libguac-client-dbshell.la
 libguac_client_dbshell_la_SOURCES = \
     client.c                        \
     clipboard.c                     \
+    command-acl.c                   \
     dbshell.c                       \
     input.c                         \
     settings.c                      \
@@ -36,6 +37,7 @@ libguac_client_dbshell_la_SOURCES = \
 noinst_HEADERS = \
     client.h     \
     clipboard.h  \
+    command-acl.h \
     dbshell.h    \
     input.h      \
     settings.h   \

@@ -54,6 +54,13 @@ int guac_dbshell_user_join_handler(guac_user* user, int argc, char** argv) {
     if (user->owner) {
         dbshell->settings = settings;
 
+        /* Capture Guacamole username for ACL rule lookup */
+        if (user->info.name != NULL && user->info.name[0] != '\0') {
+            strncpy(dbshell->guac_username, user->info.name,
+                    sizeof(dbshell->guac_username) - 1);
+            dbshell->guac_username[sizeof(dbshell->guac_username) - 1] = '\0';
+        }
+
         if (pthread_create(&dbshell->client_thread, NULL,
                     guac_dbshell_client_thread, (void*) client)) {
             guac_client_abort(client, GUAC_PROTOCOL_STATUS_SERVER_ERROR,

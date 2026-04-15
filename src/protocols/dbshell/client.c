@@ -44,8 +44,15 @@ int guac_client_init(guac_client* client) {
     guac_dbshell_client* dbshell_client =
         guac_mem_zalloc(sizeof(guac_dbshell_client));
 
-    dbshell_client->pty_fd   = -1;
+    dbshell_client->pty_fd    = -1;
     dbshell_client->child_pid = -1;
+
+    /* Load command ACL configuration; NULL if file is absent (no-op) */
+    dbshell_client->acl_config =
+        guac_ssh_acl_load_config("/etc/guacamole/command-acl.conf");
+    if (dbshell_client->acl_config != NULL)
+        guac_client_log(client, GUAC_LOG_INFO,
+                "dbshell: command ACL configuration loaded.");
 
     client->data = dbshell_client;
 
@@ -83,6 +90,10 @@ int guac_dbshell_client_free_handler(guac_client* client) {
 
     /* Free connection settings */
     guac_dbshell_settings_free(dbshell_client->settings);
+
+    /* Free ACL configuration if one was loaded */
+    if (dbshell_client->acl_config != NULL)
+        guac_ssh_acl_free_config(dbshell_client->acl_config);
 
     guac_mem_free(dbshell_client);
     return 0;
