@@ -85,8 +85,14 @@ int guac_ssh_user_key_handler(guac_user* user, int keysym, int pressed) {
         const char* username = "unknown";
         const char* ssh_hostname = "unknown";
         
-        /* Get username from ssh_client user structure */
-        if (ssh_client && ssh_client->user && ssh_client->user->username) {
+        /* Get SSH username from settings, then SSH client user structure */
+        if (ssh_client && ssh_client->settings && ssh_client->settings->username
+                && ssh_client->settings->username[0] != '\0') {
+            username = ssh_client->settings->username;
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                          "Command logger: Got username '%s' from settings", username);
+        }
+        else if (ssh_client && ssh_client->user && ssh_client->user->username) {
             username = ssh_client->user->username;
             guac_client_log(client, GUAC_LOG_DEBUG, 
                           "Command logger: Got username '%s' from SSH user", username);
@@ -95,7 +101,8 @@ int guac_ssh_user_key_handler(guac_user* user, int keysym, int pressed) {
                           "Command logger: Using default username 'unknown'");
         }
         
-        /* Get SSH hostname from settings */
+        /* Get SSH hostname and asset ID from settings */
+        const char* asset_id = NULL;
         if (ssh_client && ssh_client->settings && ssh_client->settings->hostname) {
             ssh_hostname = ssh_client->settings->hostname;
             guac_client_log(client, GUAC_LOG_DEBUG, 
@@ -104,9 +111,16 @@ int guac_ssh_user_key_handler(guac_user* user, int keysym, int pressed) {
             guac_client_log(client, GUAC_LOG_DEBUG, 
                           "Command logger: Using default hostname 'unknown'");
         }
+
+        if (ssh_client && ssh_client->settings && ssh_client->settings->asset_id
+                && ssh_client->settings->asset_id[0] != '\0') {
+            asset_id = ssh_client->settings->asset_id;
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                          "Command logger: Got asset ID '%s' from settings", asset_id);
+        }
         
-        /* Create new logger with username and hostname */
-        logger = guac_ssh_command_logger_create(user, username, ssh_hostname);
+        /* Create new logger with username, hostname, and asset ID */
+        logger = guac_ssh_command_logger_create(user, username, ssh_hostname, asset_id);
         
         if (logger) {
             pthread_setspecific(command_logger_key, logger);

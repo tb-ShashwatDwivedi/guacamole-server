@@ -31,6 +31,7 @@
 #include <guacamole/wol-constants.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -81,6 +82,7 @@ const char* GUAC_SSH_CLIENT_ARGS[] = {
     "wol-broadcast-addr",
     "wol-udp-port",
     "wol-wait-time",
+    "asset-id",
     NULL
 };
 
@@ -359,6 +361,11 @@ enum SSH_ARGS_IDX {
      */
     IDX_WOL_WAIT_TIME,
 
+    /**
+     * Guacamole connection/asset identifier for per-asset ACL lookup.
+     */
+    IDX_ASSET_ID,
+
     SSH_ARGS_COUNT
 };
 
@@ -597,6 +604,10 @@ guac_ssh_settings* guac_ssh_parse_args(guac_user* user,
         
     }
 
+    settings->asset_id =
+        guac_user_parse_args_string(user, GUAC_SSH_CLIENT_ARGS, argv,
+            IDX_ASSET_ID, NULL);
+
     /* Load ACL configuration from file */
     settings->acl_config = guac_ssh_acl_load_config("/etc/guacamole/command-acl.conf");
     
@@ -612,12 +623,40 @@ guac_ssh_settings* guac_ssh_parse_args(guac_user* user,
             settings->acl_config,
             settings->guacamole_username,
             settings->hostname,
-            settings->username
+            settings->username,
+            settings->asset_id
         );
         
         if (settings->acl_rule != NULL) {
+            char matched_key[512] = "";
+            if (settings->hostname != NULL && settings->guacamole_username != NULL
+                    && settings->asset_id != NULL && *settings->asset_id != '\0') {
+                snprintf(matched_key, sizeof(matched_key), "%s:%s:%s",
+                        settings->hostname, settings->guacamole_username,
+                        settings->asset_id);
+            }
             guac_user_log(user, GUAC_LOG_INFO, 
-                "Command ACL enabled for this connection");
+                "Command ACL enabled (matched_key=%s, host=%s, guac_user=%s, asset_id=%s)",
+                matched_key[0] != '\0' ? matched_key : "(unknown)",
+                settings->hostname ? settings->hostname : "(none)",
+                settings->guacamole_username ? settings->guacamole_username : "(none)",
+                settings->asset_id ? settings->asset_id : "(none)");
+        }
+        else {
+            char expected_key[512] = "";
+            if (settings->guacamole_username != NULL && settings->asset_id != NULL
+                    && *settings->asset_id != '\0' && settings->hostname != NULL) {
+                snprintf(expected_key, sizeof(expected_key), "%s:%s:%s",
+                        settings->hostname, settings->guacamole_username,
+                        settings->asset_id);
+            }
+            guac_user_log(user, GUAC_LOG_WARNING,
+                "Command ACL config loaded but no matching rule (host=%s, guac_user=%s, ssh_user=%s, asset_id=%s, expected_key=%s)",
+                settings->hostname ? settings->hostname : "(none)",
+                settings->guacamole_username ? settings->guacamole_username : "(none)",
+                settings->username ? settings->username : "(none)",
+                settings->asset_id ? settings->asset_id : "(none)",
+                expected_key[0] != '\0' ? expected_key : "(none)");
         }
     }
     else {
@@ -679,6 +718,7 @@ void guac_ssh_settings_free(guac_ssh_settings* settings) {
         guac_ssh_acl_free_config(settings->acl_config);
     
     guac_mem_free(settings->guacamole_username);
+    guac_mem_free(settings->asset_id);
 
     /* Free overall structure */
     guac_mem_free(settings);

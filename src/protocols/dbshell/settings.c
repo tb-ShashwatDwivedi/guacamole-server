@@ -54,6 +54,7 @@ const char* GUAC_DBSHELL_CLIENT_ARGS[] = {
     "recording-exclude-mouse",
     "recording-include-keys",
     "recording-write-existing",
+    "asset-id",
     NULL
 };
 
@@ -85,6 +86,7 @@ enum DBSHELL_ARGS_IDX {
     IDX_RECORDING_EXCLUDE_MOUSE,
     IDX_RECORDING_INCLUDE_KEYS,
     IDX_RECORDING_WRITE_EXISTING,
+    IDX_ASSET_ID,
     DBSHELL_ARGS_COUNT
 };
 
@@ -193,6 +195,9 @@ guac_dbshell_settings* guac_dbshell_parse_args(guac_user* user,
             GUAC_DBSHELL_CLIENT_ARGS, argv, IDX_RECORDING_WRITE_EXISTING,
             false);
 
+    settings->asset_id = guac_user_parse_args_string(user,
+            GUAC_DBSHELL_CLIENT_ARGS, argv, IDX_ASSET_ID, NULL);
+
     return settings;
 
 }
@@ -213,5 +218,6 @@ void guac_dbshell_settings_free(guac_dbshell_settings* settings) {
     guac_mem_free(settings->typescript_name);
     guac_mem_free(settings->recording_path);
     guac_mem_free(settings->recording_name);
+    guac_mem_free(settings->asset_id);
     guac_mem_free(settings);
 }

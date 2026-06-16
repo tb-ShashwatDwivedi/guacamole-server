@@ -169,9 +169,12 @@ static bool dbshell_acl_check_and_block(guac_client* client,
                              ? settings->username : "";
     const char* guac_user  = (dbshell->guac_username[0] != '\0')
                              ? dbshell->guac_username : NULL;
+    const char* asset_id   = (settings && settings->asset_id
+                              && settings->asset_id[0] != '\0')
+                             ? settings->asset_id : NULL;
 
     guac_ssh_acl_rule* rule = guac_ssh_acl_get_rule(
-            dbshell->acl_config, guac_user, hostname, db_user);
+            dbshell->acl_config, guac_user, hostname, db_user, asset_id);
 
     if (rule == NULL)
         return true; /* no matching rule → allow */

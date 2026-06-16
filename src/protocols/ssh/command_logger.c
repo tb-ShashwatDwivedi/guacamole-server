@@ -293,7 +293,8 @@ static void update_execution_path(command_logger* logger, const char* cmd) {
  * ---------------------------------------------------------------------- */
 command_logger* guac_ssh_command_logger_create(guac_user* user,
                                                 const char* ssh_username,
-                                                const char* ssh_hostname) {
+                                                const char* ssh_hostname,
+                                                const char* asset_id) {
     command_logger* logger = (command_logger*) calloc(1, sizeof(command_logger));
     if (!logger) return NULL;
 
@@ -353,6 +354,14 @@ command_logger* guac_ssh_command_logger_create(guac_user* user,
         strcpy(logger->ssh_hostname, "unknown");
     }
 
+    if (asset_id && asset_id[0] != '\0') {
+        strncpy(logger->asset_id, asset_id,
+                sizeof(logger->asset_id) - 1);
+        logger->asset_id[sizeof(logger->asset_id) - 1] = '\0';
+    } else {
+        logger->asset_id[0] = '\0';
+    }
+
     get_client_ip(user, logger->remote_ip, sizeof(logger->remote_ip));
 
     generate_session_id(logger->session_id, sizeof(logger->session_id),
@@ -373,9 +382,11 @@ command_logger* guac_ssh_command_logger_create(guac_user* user,
     guac_client_log(user->client, GUAC_LOG_INFO,
                     "command_logger: started — "
                     "guac_user_id=%s guac_username=%s "
-                    "ssh_username=%s IP=%s SSH_host=%s",
+                    "ssh_username=%s asset_id=%s IP=%s SSH_host=%s",
                     logger->guac_user_id, logger->guac_username,
-                    logger->ssh_username, logger->remote_ip,
+                    logger->ssh_username,
+                    logger->asset_id[0] != '\0' ? logger->asset_id : "(none)",
+                    logger->remote_ip,
                     logger->ssh_hostname);
 
     return logger;
@@ -418,7 +429,8 @@ void guac_ssh_command_logger_key(command_logger* logger, int keysym,
                         logger->acl_config,
                         logger->guac_username,
                         logger->ssh_hostname,
-                        logger->ssh_username);
+                        logger->ssh_username,
+                        logger->asset_id[0] != '\0' ? logger->asset_id : NULL);
                 if (rule && !guac_ssh_acl_check_command(rule, clean_cmd,
                                                          logger->client))
                     is_restricted = true;

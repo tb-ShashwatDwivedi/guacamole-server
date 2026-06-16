@@ -192,6 +192,11 @@ typedef struct guac_dbshell_settings {
      */
     bool recording_write_existing;
 
+    /**
+     * Guacamole connection/asset identifier for per-asset ACL lookup.
+     */
+    char* asset_id;
+
 } guac_dbshell_settings;
 
 /**

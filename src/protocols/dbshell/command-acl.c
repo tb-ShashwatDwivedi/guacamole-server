@@ -225,9 +225,12 @@ guac_ssh_acl_config* guac_ssh_acl_load_config(const char* config_path) {
     /* Allocate arrays for connection and user rules */
     config->connection_rules = guac_mem_zalloc(
         sizeof(guac_ssh_acl_connection_rule) * GUAC_SSH_ACL_MAX_RULES);
+    config->asset_rules = guac_mem_zalloc(
+        sizeof(guac_ssh_acl_asset_rule) * GUAC_SSH_ACL_MAX_RULES);
     config->user_rules = guac_mem_zalloc(
         sizeof(guac_ssh_acl_user_rule) * GUAC_SSH_ACL_MAX_RULES);
     config->connection_rule_count = 0;
+    config->asset_rule_count = 0;
     config->user_rule_count = 0;
     
     char line[4096];
@@ -266,6 +269,18 @@ guac_ssh_acl_config* guac_ssh_acl_load_config(const char* config_path) {
                         conn_rule->rule.blocked_message = strdup(GUAC_SSH_ACL_DEFAULT_MESSAGE);
                         current_rule = &conn_rule->rule;
                         config->connection_rule_count++;
+                    }
+                }
+                else if (starts_with(current_section, "asset:")) {
+                    if (config->asset_rule_count < GUAC_SSH_ACL_MAX_RULES) {
+                        guac_ssh_acl_asset_rule* asset_rule =
+                            &config->asset_rules[config->asset_rule_count];
+                        asset_rule->asset_id = strdup(current_section + 6); /* Skip "asset:" */
+                        asset_rule->rule.blacklist = NULL;
+                        asset_rule->rule.whitelist = NULL;
+                        asset_rule->rule.blocked_message = strdup(GUAC_SSH_ACL_DEFAULT_MESSAGE);
+                        current_rule = &asset_rule->rule;
+                        config->asset_rule_count++;
                     }
                 }
                 else if (starts_with(current_section, "user:")) {
@@ -385,7 +400,7 @@ bool guac_ssh_acl_require_confirmation(guac_ssh_acl_config* config) {
 
 guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
         const char* guacamole_username, const char* hostname,
-        const char* ssh_username) {
+        const char* ssh_username, const char* asset_id) {
     
     if (config == NULL)
         return NULL;
@@ -402,7 +417,34 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
     /* Priority 2: Check for connection-specific rule */
     if (hostname != NULL) {
 
-        /* Pass 1: exact hostname:ssh_username match */
+        /* Pass 1a: exact hostname:ssh_username:asset_id match */
+        if (ssh_username != NULL && asset_id != NULL && *asset_id != '\0') {
+            char connection_key[512];
+            snprintf(connection_key, sizeof(connection_key), "%s:%s:%s",
+                     hostname, ssh_username, asset_id);
+
+            for (int i = 0; i < config->connection_rule_count; i++) {
+                if (strcmp(config->connection_rules[i].key, connection_key) == 0) {
+                    return &config->connection_rules[i].rule;
+                }
+            }
+        }
+
+        /* Pass 1b: exact hostname:guacamole_username:asset_id match */
+        if (guacamole_username != NULL && asset_id != NULL && *asset_id != '\0') {
+            char guac_connection_key[512];
+            snprintf(guac_connection_key, sizeof(guac_connection_key), "%s:%s:%s",
+                     hostname, guacamole_username, asset_id);
+
+            for (int i = 0; i < config->connection_rule_count; i++) {
+                if (strcmp(config->connection_rules[i].key,
+                           guac_connection_key) == 0) {
+                    return &config->connection_rules[i].rule;
+                }
+            }
+        }
+
+        /* Pass 2: exact hostname:ssh_username match */
         if (ssh_username != NULL) {
             char connection_key[512];
             snprintf(connection_key, sizeof(connection_key), "%s:%s",
@@ -415,7 +457,7 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
             }
         }
 
-        /* Pass 1b: exact hostname:guacamole_username match
+        /* Pass 4: exact hostname:guacamole_username match
          * Allows rules like [connection:192.168.0.10:Test9] where Test9 is
          * the Guacamole account name, not the SSH login username. */
         if (guacamole_username != NULL) {
@@ -431,7 +473,7 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
             }
         }
 
-        /* Pass 2: hostname-only match (rule has no username, applies to any user) */
+        /* Pass 5: hostname-only match (rule has no username, applies to any user) */
         for (int i = 0; i < config->connection_rule_count; i++) {
             if (strchr(config->connection_rules[i].key, ':') == NULL &&
                 strcmp(config->connection_rules[i].key, hostname) == 0) {
@@ -535,6 +577,15 @@ void guac_ssh_acl_free_config(guac_ssh_acl_config* config) {
         guac_mem_free(config->connection_rules[i].rule.blocked_message);
     }
     guac_mem_free(config->connection_rules);
+    
+    /* Free asset rules */
+    for (int i = 0; i < config->asset_rule_count; i++) {
+        guac_mem_free(config->asset_rules[i].asset_id);
+        guac_mem_free(config->asset_rules[i].rule.blacklist);
+        guac_mem_free(config->asset_rules[i].rule.whitelist);
+        guac_mem_free(config->asset_rules[i].rule.blocked_message);
+    }
+    guac_mem_free(config->asset_rules);
     
     /* Free user rules */
     for (int i = 0; i < config->user_rule_count; i++) {

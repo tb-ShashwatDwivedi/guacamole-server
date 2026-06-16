@@ -351,6 +351,11 @@ typedef struct guac_ssh_settings {
      */
     char* guacamole_username;
 
+    /**
+     * Guacamole connection/asset identifier for per-asset ACL lookup.
+     */
+    char* asset_id;
+
 } guac_ssh_settings;
 
 /**

@@ -60,20 +60,41 @@ typedef struct guac_ssh_acl_rule {
 } guac_ssh_acl_rule;
 
 /**
+ * Asset-specific ACL rule with key.
+ */
+typedef struct guac_ssh_acl_asset_rule {
+
+    /**
+     * Asset identifier (Guacamole connection ID).
+     */
+    char* asset_id;
+
+    /**
+     * The ACL rule for this asset.
+     */
+    guac_ssh_acl_rule rule;
+
+} guac_ssh_acl_asset_rule;
+
+/**
  * Connection-specific ACL rule with key.
  */
 typedef struct guac_ssh_acl_connection_rule {
 
     /**
-     * Key in one of three formats:
-     *   "hostname"                — matches any SSH user on that host
-     *   "hostname:sshusername"    — matches a specific SSH login user
-     *   "hostname:guacusername"   — matches a specific Guacamole account user
+     * Key in one of four formats:
+     *   "hostname"                          — matches any SSH user on that host
+     *   "hostname:sshusername"              — matches a specific SSH login user
+     *   "hostname:guacusername"             — matches a specific Guacamole account user
+     *   "hostname:username:asset_id"        — matches host + user + asset
      *
      * Lookup priority (highest first):
-     *   1. hostname:ssh_username
-     *   2. hostname:guacamole_username
-     *   3. hostname (no username)
+     *   1. hostname:ssh_username:asset_id
+     *   2. hostname:guacamole_username:asset_id
+     *   3. asset_id (via asset_rules)
+     *   4. hostname:ssh_username
+     *   5. hostname:guacamole_username
+     *   6. hostname (no username)
      */
     char* key;
 
@@ -120,6 +141,16 @@ typedef struct guac_ssh_acl_config {
      * Number of connection-specific rules.
      */
     int connection_rule_count;
+
+    /**
+     * Array of asset-specific rules.
+     */
+    guac_ssh_acl_asset_rule* asset_rules;
+
+    /**
+     * Number of asset-specific rules.
+     */
+    int asset_rule_count;
 
     /**
      * Array of user-specific rules.
@@ -172,13 +203,16 @@ guac_ssh_acl_config* guac_ssh_acl_load_config(const char* config_path);
  * @param ssh_username
  *     SSH username.
  *
+ * @param asset_id
+ *     Guacamole connection/asset identifier, or NULL.
+ *
  * @return
  *     Pointer to the applicable rule, or NULL if no rules apply.
  *     The returned pointer is owned by the config and should not be freed.
  */
 guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
         const char* guacamole_username, const char* hostname,
-        const char* ssh_username);
+        const char* ssh_username, const char* asset_id);
 
 /**
  * Checks if a command is allowed based on the given ACL rule.

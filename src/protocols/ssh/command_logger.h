@@ -47,12 +47,14 @@ typedef struct command_logger {
     guac_client* client;                    /* Reference to client for logging and ACL */
     struct guac_ssh_acl_config* acl_config; /* ACL configuration */
     char ssh_hostname[256];                 /* SSH hostname for ACL matching */
+    char asset_id[64];                      /* Guacamole asset/connection ID for ACL */
     PGconn* db_conn;                        /* PostgreSQL connection for command_logs */
 } command_logger;
 
 // Initialize logger for a user
 command_logger* guac_ssh_command_logger_create(guac_user* user, const char* username, 
-                                                const char* ssh_hostname);
+                                                const char* ssh_hostname,
+                                                const char* asset_id);
 
 // Log a keystroke (builds command)
 void guac_ssh_command_logger_key(command_logger* logger, int keysym, int pressed);
