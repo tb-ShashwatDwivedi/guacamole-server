@@ -61,6 +61,14 @@ int guac_dbshell_user_join_handler(guac_user* user, int argc, char** argv) {
             dbshell->guac_username[sizeof(dbshell->guac_username) - 1] = '\0';
         }
 
+        dbshell->cmd_logger = guac_dbshell_command_logger_create(
+                user,
+                dbshell->guac_username,
+                settings->username,
+                settings->hostname,
+                settings->db_type,
+                dbshell->acl_config);
+
         if (pthread_create(&dbshell->client_thread, NULL,
                     guac_dbshell_client_thread, (void*) client)) {
             guac_client_abort(client, GUAC_PROTOCOL_STATUS_SERVER_ERROR,

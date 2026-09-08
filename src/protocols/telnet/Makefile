@@ -162,6 +162,8 @@ am_libguac_client_telnet_la_OBJECTS =  \
 	libguac_client_telnet_la-argv.lo \
 	libguac_client_telnet_la-client.lo \
 	libguac_client_telnet_la-clipboard.lo \
+	libguac_client_telnet_la-command-acl.lo \
+	libguac_client_telnet_la-command_logger.lo \
 	libguac_client_telnet_la-input.lo \
 	libguac_client_telnet_la-pipe.lo \
 	libguac_client_telnet_la-settings.lo \
@@ -195,6 +197,8 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/libguac_client_telnet_la-argv.Plo \
 	./$(DEPDIR)/libguac_client_telnet_la-client.Plo \
 	./$(DEPDIR)/libguac_client_telnet_la-clipboard.Plo \
+	./$(DEPDIR)/libguac_client_telnet_la-command-acl.Plo \
+	./$(DEPDIR)/libguac_client_telnet_la-command_logger.Plo \
 	./$(DEPDIR)/libguac_client_telnet_la-input.Plo \
 	./$(DEPDIR)/libguac_client_telnet_la-pipe.Plo \
 	./$(DEPDIR)/libguac_client_telnet_la-settings.Plo \
@@ -396,7 +400,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-init_dir = 
+init_dir = /etc/init.d
 install_sh = ${SHELL} /opt/guacamole-server-1.6.0/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
@@ -414,7 +418,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-systemd_dir = /usr/lib/systemd/system
+systemd_dir = 
 target_alias = 
 top_build_prefix = ../../../
 top_builddir = ../../..
@@ -426,6 +430,8 @@ libguac_client_telnet_la_SOURCES = \
     argv.c                         \
     client.c                       \
     clipboard.c                    \
+    command-acl.c                  \
+    command_logger.c               \
     input.c                        \
     pipe.c                         \
     settings.c                     \
@@ -433,19 +439,22 @@ libguac_client_telnet_la_SOURCES = \
     user.c
 
 noinst_HEADERS = \
-    argv.h       \
-    client.h     \
-    clipboard.h  \
-    input.h      \
-    pipe.h       \
-    settings.h   \
-    telnet.h     \
+    argv.h           \
+    client.h         \
+    clipboard.h      \
+    command-acl.h    \
+    command_logger.h \
+    input.h          \
+    pipe.h           \
+    settings.h       \
+    telnet.h         \
     user.h
 
 libguac_client_telnet_la_CFLAGS = \
     -Werror -Wall -Iinclude       \
     -I$(top_srcdir)/src/libguac             \
-    -I$(top_srcdir)/src/terminal $(PANGO_CFLAGS) $(PANGOCAIRO_CFLAGS) $(COMMON_INCLUDE)
+    -I$(top_srcdir)/src/terminal $(PANGO_CFLAGS) $(PANGOCAIRO_CFLAGS) $(COMMON_INCLUDE)            \
+    -I/usr/include/postgresql
 
 libguac_client_telnet_la_LIBADD = \
     $(top_builddir)/src/common/libguac_common.la                \
@@ -455,7 +464,9 @@ libguac_client_telnet_la_LIBADD = \
 libguac_client_telnet_la_LDFLAGS = \
     -version-info 0:0:0            \
     -lpthread                 \
-     -ltelnet
+     -ltelnet                  \
+    -L/usr/lib/x86_64-linux-gnu    \
+    -lpq
 
 all: all-am
 
@@ -538,6 +549,8 @@ distclean-compile:
 include ./$(DEPDIR)/libguac_client_telnet_la-argv.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_telnet_la-client.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_telnet_la-clipboard.Plo # am--include-marker
+include ./$(DEPDIR)/libguac_client_telnet_la-command-acl.Plo # am--include-marker
+include ./$(DEPDIR)/libguac_client_telnet_la-command_logger.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_telnet_la-input.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_telnet_la-pipe.Plo # am--include-marker
 include ./$(DEPDIR)/libguac_client_telnet_la-settings.Plo # am--include-marker
@@ -594,6 +607,20 @@ libguac_client_telnet_la-clipboard.lo: clipboard.c
 #	$(AM_V_CC)source='clipboard.c' object='libguac_client_telnet_la-clipboard.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_telnet_la_CFLAGS) $(CFLAGS) -c -o libguac_client_telnet_la-clipboard.lo `test -f 'clipboard.c' || echo '$(srcdir)/'`clipboard.c
+
+libguac_client_telnet_la-command-acl.lo: command-acl.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_telnet_la_CFLAGS) $(CFLAGS) -MT libguac_client_telnet_la-command-acl.lo -MD -MP -MF $(DEPDIR)/libguac_client_telnet_la-command-acl.Tpo -c -o libguac_client_telnet_la-command-acl.lo `test -f 'command-acl.c' || echo '$(srcdir)/'`command-acl.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libguac_client_telnet_la-command-acl.Tpo $(DEPDIR)/libguac_client_telnet_la-command-acl.Plo
+#	$(AM_V_CC)source='command-acl.c' object='libguac_client_telnet_la-command-acl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_telnet_la_CFLAGS) $(CFLAGS) -c -o libguac_client_telnet_la-command-acl.lo `test -f 'command-acl.c' || echo '$(srcdir)/'`command-acl.c
+
+libguac_client_telnet_la-command_logger.lo: command_logger.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_telnet_la_CFLAGS) $(CFLAGS) -MT libguac_client_telnet_la-command_logger.lo -MD -MP -MF $(DEPDIR)/libguac_client_telnet_la-command_logger.Tpo -c -o libguac_client_telnet_la-command_logger.lo `test -f 'command_logger.c' || echo '$(srcdir)/'`command_logger.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libguac_client_telnet_la-command_logger.Tpo $(DEPDIR)/libguac_client_telnet_la-command_logger.Plo
+#	$(AM_V_CC)source='command_logger.c' object='libguac_client_telnet_la-command_logger.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_telnet_la_CFLAGS) $(CFLAGS) -c -o libguac_client_telnet_la-command_logger.lo `test -f 'command_logger.c' || echo '$(srcdir)/'`command_logger.c
 
 libguac_client_telnet_la-input.lo: input.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libguac_client_telnet_la_CFLAGS) $(CFLAGS) -MT libguac_client_telnet_la-input.lo -MD -MP -MF $(DEPDIR)/libguac_client_telnet_la-input.Tpo -c -o libguac_client_telnet_la-input.lo `test -f 'input.c' || echo '$(srcdir)/'`input.c
@@ -766,6 +793,8 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/libguac_client_telnet_la-argv.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-client.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-clipboard.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-command-acl.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-command_logger.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-input.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-pipe.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-settings.Plo
@@ -819,6 +848,8 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/libguac_client_telnet_la-argv.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-client.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-clipboard.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-command-acl.Plo
+	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-command_logger.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-input.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-pipe.Plo
 	-rm -f ./$(DEPDIR)/libguac_client_telnet_la-settings.Plo

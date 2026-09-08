@@ -29,6 +29,7 @@ libguac_client_dbshell_la_SOURCES = \
     client.c                        \
     clipboard.c                     \
     command-acl.c                   \
+    command_logger.c                \
     dbshell.c                       \
     input.c                         \
     settings.c                      \
@@ -38,6 +39,7 @@ noinst_HEADERS = \
     client.h     \
     clipboard.h  \
     command-acl.h \
+    command_logger.h \
     dbshell.h    \
     input.h      \
     settings.h   \
@@ -47,7 +49,8 @@ libguac_client_dbshell_la_CFLAGS = \
     -Werror -Wall                  \
     @LIBGUAC_INCLUDE@              \
     @TERMINAL_INCLUDE@             \
-    @COMMON_INCLUDE@
+    @COMMON_INCLUDE@               \
+    -I/usr/include/postgresql
 
 libguac_client_dbshell_la_LIBADD = \
     @COMMON_LTLIB@                 \
@@ -57,6 +60,8 @@ libguac_client_dbshell_la_LIBADD = \
 libguac_client_dbshell_la_LDFLAGS = \
     -version-info 0:0:0             \
     @PTHREAD_LIBS@                  \
+    -L/usr/lib/x86_64-linux-gnu     \
+    -lpq                          \
     -lutil
 #
 # -lutil links forkpty() on Linux (provided by libc / glibc on most distros;

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "argv.h"
+#include "command-acl.h"
 #include "telnet.h"
 #include "terminal/terminal.h"
 
@@ -41,9 +42,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
+
+#define CONFIRM_PROMPT "\r\nAre you sure you want to execute this dangerous command? (yes/no): "
+#define CONFIRM_CANCELLED "\r\nCommand cancelled.\r\n"
+#define TELNET_ACL_CONFIG_PATH "/etc/guacamole/command-acl.conf"
+
+/**
+ * Writes a readable blocked-command notice to the terminal, avoiding ANSI
+ * clear-line sequences that render as garbage in the Guacamole client.
+ */
+static void telnet_write_blocked_notice(guac_terminal* term, const char* blocked_msg) {
+
+    const char* msg = blocked_msg;
+
+    if (msg == NULL || msg[0] == '\0')
+        msg = GUAC_SSH_ACL_DEFAULT_MESSAGE;
+
+    while (*msg == '\r' || *msg == '\n' || *msg == ' ' || *msg == '\t')
+        msg++;
+
+    guac_terminal_write(term, "\r\n", 2);
+    guac_terminal_write(term, msg, strlen(msg));
+    guac_terminal_write(term, "\r\n", 2);
+}
 
 /**
  * Support levels for various telnet options, required for connection
@@ -358,15 +383,179 @@ static void* __guac_telnet_input_thread(void* data) {
 
     guac_client* client = (guac_client*) data;
     guac_telnet_client* telnet_client = (guac_telnet_client*) client->data;
+    guac_telnet_settings* settings = telnet_client->settings;
 
     char buffer[8192];
     int bytes_read;
 
-    /* Write all data read */
+    /* Command buffer for ACL/dangerous checking */
+    char command_buffer[8192] = {0};
+    int command_len = 0;
+
+    bool dangerous_confirm_enabled = (settings->acl_config != NULL &&
+            guac_ssh_acl_require_confirmation(settings->acl_config));
+    /* Always intercept commands when ACL config file exists so edits take
+     * effect without requiring a full session reconnect. */
+    bool cmd_check_enabled = (access(TELNET_ACL_CONFIG_PATH, R_OK) == 0)
+            || dangerous_confirm_enabled;
+
     while ((bytes_read = guac_terminal_read_stdin(telnet_client->term, buffer, sizeof(buffer))) > 0) {
-        telnet_send(telnet_client->telnet, buffer, bytes_read);
-        if (telnet_client->echo_enabled)
-            guac_terminal_write(telnet_client->term, buffer, bytes_read);
+
+        /* Handle confirmation mode first (yes/no response) */
+        if (telnet_client->confirm_pending) {
+            for (int i = 0; i < bytes_read; i++) {
+                char c = buffer[i];
+                if (c == '\r' || c == '\n') {
+                    telnet_client->confirm_response[telnet_client->confirm_response_len] = '\0';
+                    char* resp = telnet_client->confirm_response;
+                    while (*resp == ' ' || *resp == '\t') resp++;
+                    bool is_yes = (strcasecmp(resp, "yes") == 0 || strcasecmp(resp, "y") == 0);
+                    bool is_no  = (strcasecmp(resp, "no") == 0  || strcasecmp(resp, "n") == 0);
+
+                    guac_terminal_write(telnet_client->term, "\r\n", 2);
+
+                    if (is_yes) {
+                        telnet_send(telnet_client->telnet, "\n", 1);
+                        if (telnet_client->echo_enabled)
+                            guac_terminal_write(telnet_client->term, "\n", 1);
+                    } else {
+                        const char ctrl_c = '\x03';
+                        telnet_send(telnet_client->telnet, &ctrl_c, 1);
+                        guac_terminal_write(telnet_client->term, CONFIRM_CANCELLED,
+                                sizeof(CONFIRM_CANCELLED) - 1);
+                        if (!is_no) {
+                            guac_client_log(client, GUAC_LOG_DEBUG,
+                                    "Dangerous command confirmation: invalid response '%s'",
+                                    telnet_client->confirm_response);
+                        }
+                    }
+
+                    telnet_client->confirm_pending = false;
+                    telnet_client->confirm_response_len = 0;
+                    memset(telnet_client->confirm_response, 0,
+                            sizeof(telnet_client->confirm_response));
+                } else if (c == 0x7F || c == 0x08) {
+                    if (telnet_client->confirm_response_len > 0) {
+                        telnet_client->confirm_response[--telnet_client->confirm_response_len] = '\0';
+                        guac_terminal_write(telnet_client->term, "\b \b", 3);
+                    }
+                } else if (telnet_client->confirm_response_len
+                        < (int) sizeof(telnet_client->confirm_response) - 1
+                        && c >= 0x20 && c <= 0x7E) {
+                    telnet_client->confirm_response[telnet_client->confirm_response_len++] = c;
+                    telnet_client->confirm_response[telnet_client->confirm_response_len] = '\0';
+                    guac_terminal_write(telnet_client->term, &c, 1);
+                }
+            }
+            if (client->state == GUAC_CLIENT_STOPPING)
+                break;
+            continue;
+        }
+
+        if (cmd_check_enabled) {
+            for (int i = 0; i < bytes_read; i++) {
+                char c = buffer[i];
+
+                if (c == '\r' || c == '\n') {
+                    command_buffer[command_len] = '\0';
+                    bool blocked = false;
+                    bool needs_confirm = false;
+                    char blocked_notice[512];
+                    blocked_notice[0] = '\0';
+                    int blocked_cmd_len = command_len;
+
+                    if (command_len > 0) {
+                        guac_ssh_acl_config* fresh_acl =
+                            guac_ssh_acl_load_config(TELNET_ACL_CONFIG_PATH);
+                        if (fresh_acl != NULL) {
+                            guac_ssh_acl_rule* rule = guac_ssh_acl_get_rule(
+                                    fresh_acl,
+                                    settings->guacamole_username,
+                                    settings->hostname,
+                                    settings->username,
+                                    settings->asset_id);
+                            if (rule != NULL
+                                    && !guac_ssh_acl_check_command(rule,
+                                        command_buffer, client)) {
+                                blocked = true;
+                                if (rule->blocked_message != NULL) {
+                                    strncpy(blocked_notice, rule->blocked_message,
+                                            sizeof(blocked_notice) - 1);
+                                    blocked_notice[sizeof(blocked_notice) - 1] = '\0';
+                                }
+                            }
+
+                            if (!blocked && dangerous_confirm_enabled
+                                    && guac_ssh_acl_is_dangerous_command(
+                                        fresh_acl, command_buffer)) {
+                                needs_confirm = true;
+                            }
+
+                            guac_ssh_acl_free_config(fresh_acl);
+                        }
+                        else if (!blocked && dangerous_confirm_enabled
+                                && settings->acl_config != NULL
+                                && guac_ssh_acl_is_dangerous_command(
+                                    settings->acl_config, command_buffer)) {
+                            needs_confirm = true;
+                        }
+                    }
+
+                    if (blocked) {
+                        if (blocked_cmd_len > 0) {
+                            char bs = (char) settings->backspace;
+                            for (int j = 0; j < blocked_cmd_len; j++)
+                                telnet_send(telnet_client->telnet, &bs, 1);
+                        }
+
+                        telnet_write_blocked_notice(telnet_client->term,
+                                blocked_notice[0] != '\0' ? blocked_notice : NULL);
+                        guac_client_log(client, GUAC_LOG_WARNING,
+                                "Blocked command for user %s: %s",
+                                settings->guacamole_username ?
+                                    settings->guacamole_username : "unknown",
+                                command_buffer);
+                    } else if (needs_confirm) {
+                        guac_terminal_write(telnet_client->term, CONFIRM_PROMPT,
+                                sizeof(CONFIRM_PROMPT) - 1);
+                        strncpy(telnet_client->confirm_command, command_buffer,
+                                sizeof(telnet_client->confirm_command) - 1);
+                        telnet_client->confirm_command[
+                            sizeof(telnet_client->confirm_command) - 1] = '\0';
+                        telnet_client->confirm_pending = true;
+                        telnet_client->confirm_response_len = 0;
+                        memset(telnet_client->confirm_response, 0,
+                                sizeof(telnet_client->confirm_response));
+                    } else {
+                        telnet_send(telnet_client->telnet, &c, 1);
+                        if (telnet_client->echo_enabled)
+                            guac_terminal_write(telnet_client->term, &c, 1);
+                    }
+
+                    command_len = 0;
+                    memset(command_buffer, 0, sizeof(command_buffer));
+                } else if (c == 0x7F || c == 0x08) {
+                    if (command_len > 0)
+                        command_buffer[--command_len] = '\0';
+                    telnet_send(telnet_client->telnet, &c, 1);
+                    if (telnet_client->echo_enabled)
+                        guac_terminal_write(telnet_client->term, &c, 1);
+                } else {
+                    if (command_len < (int) sizeof(command_buffer) - 1)
+                        command_buffer[command_len++] = c;
+                    telnet_send(telnet_client->telnet, &c, 1);
+                    if (telnet_client->echo_enabled)
+                        guac_terminal_write(telnet_client->term, &c, 1);
+                }
+            }
+        } else {
+            telnet_send(telnet_client->telnet, buffer, bytes_read);
+            if (telnet_client->echo_enabled)
+                guac_terminal_write(telnet_client->term, buffer, bytes_read);
+        }
+
+        if (client->state == GUAC_CLIENT_STOPPING)
+            break;
     }
 
     return NULL;

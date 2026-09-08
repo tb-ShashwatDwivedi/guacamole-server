@@ -27,6 +27,17 @@
 #include <sys/types.h>
 #include <regex.h>
 #include <stdbool.h>
+
+/**
+ * Forward declaration of ACL configuration structure.
+ */
+typedef struct guac_ssh_acl_config guac_ssh_acl_config;
+
+/**
+ * Forward declaration of ACL rule structure.
+ */
+typedef struct guac_ssh_acl_rule guac_ssh_acl_rule;
+
 /**
  * The port to connect to when initiating any telnet connection, if no other
  * port is specified.
@@ -291,6 +302,26 @@ typedef struct guac_telnet_settings {
      * continuing the connection.
      */
     int wol_wait_time;
+
+    /**
+     * Loaded ACL configuration for command filtering.
+     */
+    guac_ssh_acl_config* acl_config;
+
+    /**
+     * The effective ACL rule for this connection (resolved from config).
+     */
+    guac_ssh_acl_rule* acl_rule;
+
+    /**
+     * Guacamole username for per-user ACL lookup.
+     */
+    char* guacamole_username;
+
+    /**
+     * Guacamole connection/asset identifier for per-asset ACL lookup.
+     */
+    char* asset_id;
 
 } guac_telnet_settings;
 

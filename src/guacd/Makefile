@@ -398,7 +398,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-init_dir = 
+init_dir = /etc/init.d
 install_sh = ${SHELL} /opt/guacamole-server-1.6.0/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
@@ -416,7 +416,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-systemd_dir = /usr/lib/systemd/system
+systemd_dir = 
 target_alias = 
 top_build_prefix = ../../
 top_builddir = ../..
@@ -470,12 +470,12 @@ EXTRA_DIST = \
 CLEANFILES = $(init_SCRIPTS) $(systemd_UNITS)
 
 # Init script
-#initdir = 
-#init_SCRIPTS = init.d/guacd
+initdir = /etc/init.d
+init_SCRIPTS = init.d/guacd
 
 # Systemd service
-systemddir = /usr/lib/systemd/system
-systemd_DATA = systemd/guacd.service
+#systemddir = 
+#systemd_DATA = systemd/guacd.service
 all: all-am
 
 .SUFFIXES:
@@ -1117,12 +1117,12 @@ uninstall-man: uninstall-man5 uninstall-man8
 .PRECIOUS: Makefile
 
 
-#init.d/guacd: init.d/guacd.in
-#	sed -e 's,[@]sbindir[@],$(sbindir),g' < init.d/guacd.in > init.d/guacd
-#	chmod +x init.d/guacd
+init.d/guacd: init.d/guacd.in
+	sed -e 's,[@]sbindir[@],$(sbindir),g' < init.d/guacd.in > init.d/guacd
+	chmod +x init.d/guacd
 
-systemd/guacd.service: systemd/guacd.service.in
-	sed -e 's,[@]sbindir[@],$(sbindir),g' < systemd/guacd.service.in > systemd/guacd.service
+#systemd/guacd.service: systemd/guacd.service.in
+#	sed -e 's,[@]sbindir[@],$(sbindir),g' < systemd/guacd.service.in > systemd/guacd.service
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -18,6 +18,7 @@
  */
 
 #include "config.h"
+#include "command_logger.h"
 #include "input.h"
 #include "terminal/terminal.h"
 #include "telnet.h"
@@ -28,10 +29,37 @@
 #include <guacamole/user.h>
 #include <libtelnet.h>
 
+#include <pthread.h>
 #include <regex.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+/*
+ * Command logger key for thread-local storage
+ */
+static pthread_key_t command_logger_key;
+static int command_logger_key_initialized = 0;
+
+/*
+ * Free function for command logger
+ */
+static void command_logger_free(void* data) {
+    if (data) {
+        guac_ssh_command_logger_free((command_logger*) data);
+    }
+}
+
+/*
+ * Initialize command logger key
+ */
+static void command_logger_initialize() {
+    if (!command_logger_key_initialized) {
+        pthread_key_create(&command_logger_key, command_logger_free);
+        command_logger_key_initialized = 1;
+    }
+}
 
 int guac_telnet_user_mouse_handler(guac_user* user, int x, int y, int mask) {
 
@@ -72,6 +100,60 @@ int guac_telnet_user_key_handler(guac_user* user, int keysym, int pressed) {
     /* Skip if terminal not yet ready */
     if (term == NULL)
         return 0;
+
+    /* Initialize command logger if needed */
+    command_logger_initialize();
+
+    /* Get or create command logger for this user */
+    command_logger* logger = (command_logger*) pthread_getspecific(command_logger_key);
+
+    if (logger == NULL) {
+        const char* username = "unknown";
+        const char* telnet_hostname = "unknown";
+
+        if (settings && settings->username && settings->username[0] != '\0') {
+            username = settings->username;
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                    "Command logger: Got username '%s' from settings", username);
+        }
+        else {
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                    "Command logger: Using default username 'unknown'");
+        }
+
+        const char* asset_id = NULL;
+        if (settings && settings->hostname) {
+            telnet_hostname = settings->hostname;
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                    "Command logger: Got telnet hostname '%s' from settings",
+                    telnet_hostname);
+        }
+        else {
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                    "Command logger: Using default hostname 'unknown'");
+        }
+
+        if (settings && settings->asset_id && settings->asset_id[0] != '\0') {
+            asset_id = settings->asset_id;
+            guac_client_log(client, GUAC_LOG_DEBUG,
+                    "Command logger: Got asset ID '%s' from settings", asset_id);
+        }
+
+        logger = guac_ssh_command_logger_create(user, username, telnet_hostname,
+                asset_id);
+
+        if (logger) {
+            pthread_setspecific(command_logger_key, logger);
+            guac_client_log(client, GUAC_LOG_INFO,
+                    "Command logging started for user: %s on %s",
+                    username, telnet_hostname);
+        }
+    }
+
+    /* Log the keystroke (only if pressed, not released) */
+    if (logger && pressed) {
+        guac_ssh_command_logger_key(logger, keysym, pressed);
+    }
 
     /* Stop searching for password */
     if (settings->password_regex != NULL) {
@@ -142,4 +224,3 @@ int guac_telnet_user_size_handler(guac_user* user, int width, int height) {
 
     return 0;
 }
-

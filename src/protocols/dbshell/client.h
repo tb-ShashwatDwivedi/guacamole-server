@@ -21,6 +21,7 @@
 #define GUAC_DBSHELL_CLIENT_H
 
 #include "command-acl.h"
+#include "command_logger.h"
 #include "settings.h"
 #include "terminal/terminal.h"
 
@@ -98,6 +99,11 @@ typedef struct guac_dbshell_client {
      * from user->info.name when the owner joins. Used for ACL rule lookup.
      */
     char guac_username[256];
+
+    /**
+     * PostgreSQL command audit logger for completed and blocked SQL statements.
+     */
+    guac_dbshell_command_logger* cmd_logger;
 
 } guac_dbshell_client;
 

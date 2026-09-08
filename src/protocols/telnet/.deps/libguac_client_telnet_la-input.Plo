@@ -1,5 +1,5 @@
 libguac_client_telnet_la-input.lo: input.c /usr/include/stdc-predef.h \
- ../../../config.h input.h ../../../src/libguac/guacamole/user.h \
+ ../../../config.h command_logger.h ../../../src/libguac/guacamole/user.h \
  ../../../src/libguac/guacamole/client-types.h \
  ../../../src/libguac/guacamole/layer-types.h \
  ../../../src/libguac/guacamole/pool-types.h \
@@ -58,8 +58,6 @@ libguac_client_telnet_la-input.lo: input.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
  /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
- ../../../src/terminal/terminal/terminal.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
  ../../../src/libguac/guacamole/client.h \
  ../../../src/libguac/guacamole/client-fntypes.h \
  ../../../src/libguac/guacamole/socket.h \
@@ -76,6 +74,26 @@ libguac_client_telnet_la-input.lo: input.c /usr/include/stdc-predef.h \
  /usr/include/linux/close_range.h \
  ../../../src/libguac/guacamole/client-constants.h \
  ../../../src/libguac/guacamole/rwlock.h \
+ /usr/include/postgresql/libpq-fe.h /usr/include/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2-decl.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2.h \
+ /usr/include/postgresql/postgres_ext.h /usr/include/string.h \
+ /usr/include/strings.h \
+ /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
+ /usr/include/x86_64-linux-gnu/bits/string_fortified.h input.h \
+ ../../../src/terminal/terminal/terminal.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
  ../../../src/libguac/guacamole/stream.h telnet.h settings.h \
  /usr/include/x86_64-linux-gnu/sys/types.h /usr/include/endian.h \
  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
@@ -89,15 +107,13 @@ libguac_client_telnet_la-input.lo: input.c /usr/include/stdc-predef.h \
  ../../../src/libguac/guacamole/mem.h \
  ../../../src/libguac/guacamole/private/mem.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
- /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
- /usr/include/x86_64-linux-gnu/bits/floatn.h \
- /usr/include/x86_64-linux-gnu/bits/floatn-common.h /usr/include/alloca.h \
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h
 /usr/include/stdc-predef.h:
 ../../../config.h:
-input.h:
+command_logger.h:
 ../../../src/libguac/guacamole/user.h:
 ../../../src/libguac/guacamole/client-types.h:
 ../../../src/libguac/guacamole/layer-types.h:
@@ -164,8 +180,6 @@ input.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
 /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
-../../../src/terminal/terminal/terminal.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
 ../../../src/libguac/guacamole/client.h:
 ../../../src/libguac/guacamole/client-fntypes.h:
 ../../../src/libguac/guacamole/socket.h:
@@ -183,6 +197,29 @@ input.h:
 /usr/include/linux/close_range.h:
 ../../../src/libguac/guacamole/client-constants.h:
 ../../../src/libguac/guacamole/rwlock.h:
+/usr/include/postgresql/libpq-fe.h:
+/usr/include/stdio.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
+/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+/usr/include/x86_64-linux-gnu/bits/floatn.h:
+/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+/usr/include/x86_64-linux-gnu/bits/stdio2-decl.h:
+/usr/include/x86_64-linux-gnu/bits/stdio.h:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:
+/usr/include/postgresql/postgres_ext.h:
+/usr/include/string.h:
+/usr/include/strings.h:
+/usr/include/x86_64-linux-gnu/bits/strings_fortified.h:
+/usr/include/x86_64-linux-gnu/bits/string_fortified.h:
+input.h:
+../../../src/terminal/terminal/terminal.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
 ../../../src/libguac/guacamole/stream.h:
 telnet.h:
 settings.h:
@@ -203,8 +240,6 @@ settings.h:
 /usr/include/stdlib.h:
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
-/usr/include/x86_64-linux-gnu/bits/floatn.h:
-/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 /usr/include/alloca.h:
 /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:

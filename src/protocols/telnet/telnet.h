@@ -27,6 +27,8 @@
 #include <guacamole/recording.h>
 #include <libtelnet.h>
 
+#include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /**
@@ -76,6 +78,27 @@ typedef struct guac_telnet_client {
      * progress.
      */
     guac_recording* recording;
+
+    /**
+     * Dangerous command confirmation state.
+     * When true, input is buffered for yes/no response instead of sent to telnet.
+     */
+    bool confirm_pending;
+
+    /**
+     * Command awaiting confirmation (when confirm_pending is true).
+     */
+    char confirm_command[8192];
+
+    /**
+     * User's response to confirmation prompt.
+     */
+    char confirm_response[256];
+
+    /**
+     * Length of response in confirm_response.
+     */
+    int confirm_response_len;
 
 } guac_telnet_client;
 

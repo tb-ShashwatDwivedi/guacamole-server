@@ -19,6 +19,7 @@
 
 #include "client.h"
 #include "command-acl.h"
+#include "command_logger.h"
 #include "input.h"
 #include "settings.h"
 #include "terminal/terminal.h"
@@ -207,6 +208,10 @@ static bool dbshell_acl_check_and_block(guac_client* client,
             hostname,
             dbshell->sql_buffer);
 
+    if (dbshell->cmd_logger != NULL)
+        guac_dbshell_command_logger_log(dbshell->cmd_logger,
+                dbshell->sql_buffer, "restricted", "restricted");
+
     sql_buf_reset(dbshell);
     return false;
 }
@@ -271,12 +276,21 @@ int guac_dbshell_user_key_handler(guac_user* user, int keysym, int pressed) {
         if (!dbshell_acl_check_and_block(client, dbshell))
             return 0; /* Enter suppressed — statement blocked */
 
-        /* Statement allowed: reset buffer if it was a complete statement */
         guac_dbshell_settings* settings = dbshell->settings;
         if (settings != NULL &&
                 dbshell_is_complete_statement(settings->db_type,
-                        dbshell->sql_buffer, dbshell->sql_buffer_pos))
+                        dbshell->sql_buffer, dbshell->sql_buffer_pos)) {
+
+            if (dbshell->cmd_logger != NULL) {
+                const char* cmd_type = guac_ssh_acl_is_dangerous_command(
+                        dbshell->acl_config, dbshell->sql_buffer)
+                    ? "dangerous" : "normal";
+                guac_dbshell_command_logger_log(dbshell->cmd_logger,
+                        dbshell->sql_buffer, cmd_type, "executed");
+            }
+
             sql_buf_reset(dbshell);
+        }
     }
 
     /* Forward keystroke to the terminal / PTY */

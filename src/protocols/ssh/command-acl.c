@@ -444,6 +444,15 @@ guac_ssh_acl_rule* guac_ssh_acl_get_rule(guac_ssh_acl_config* config,
             }
         }
 
+        /* Pass 1c: asset-only rule [asset:ID] (TB-PAM backend format) */
+        if (asset_id != NULL && *asset_id != '\0') {
+            for (int i = 0; i < config->asset_rule_count; i++) {
+                if (strcmp(config->asset_rules[i].asset_id, asset_id) == 0) {
+                    return &config->asset_rules[i].rule;
+                }
+            }
+        }
+
         /* Pass 2: exact hostname:ssh_username match */
         if (ssh_username != NULL) {
             char connection_key[512];

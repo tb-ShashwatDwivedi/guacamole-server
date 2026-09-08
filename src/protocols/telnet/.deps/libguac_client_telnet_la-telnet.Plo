@@ -61,17 +61,7 @@ libguac_client_telnet_la-telnet.lo: telnet.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
  /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h telnet.h settings.h \
- /usr/include/x86_64-linux-gnu/sys/types.h /usr/include/endian.h \
- /usr/include/x86_64-linux-gnu/bits/byteswap.h \
- /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
- /usr/include/x86_64-linux-gnu/sys/select.h \
- /usr/include/x86_64-linux-gnu/bits/select.h \
- /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
- /usr/include/x86_64-linux-gnu/bits/select2.h \
- /usr/include/x86_64-linux-gnu/bits/select-decl.h /usr/include/regex.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
- ../../../src/terminal/terminal/terminal.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h command-acl.h \
  ../../../src/libguac/guacamole/client.h \
  ../../../src/libguac/guacamole/client-fntypes.h \
  ../../../src/libguac/guacamole/socket.h \
@@ -88,6 +78,16 @@ libguac_client_telnet_la-telnet.lo: telnet.c /usr/include/stdc-predef.h \
  /usr/include/linux/close_range.h \
  ../../../src/libguac/guacamole/client-constants.h \
  ../../../src/libguac/guacamole/rwlock.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h telnet.h settings.h \
+ /usr/include/x86_64-linux-gnu/sys/types.h /usr/include/endian.h \
+ /usr/include/x86_64-linux-gnu/bits/byteswap.h \
+ /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+ /usr/include/x86_64-linux-gnu/sys/select.h \
+ /usr/include/x86_64-linux-gnu/bits/select.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
+ /usr/include/x86_64-linux-gnu/bits/select2.h \
+ /usr/include/x86_64-linux-gnu/bits/select-decl.h /usr/include/regex.h \
+ ../../../src/terminal/terminal/terminal.h \
  ../../../src/libguac/guacamole/stream.h \
  ../../../src/libguac/guacamole/recording.h /usr/include/libtelnet.h \
  ../../../src/libguac/guacamole/mem.h \
@@ -210,20 +210,7 @@ argv.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
 /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
-telnet.h:
-settings.h:
-/usr/include/x86_64-linux-gnu/sys/types.h:
-/usr/include/endian.h:
-/usr/include/x86_64-linux-gnu/bits/byteswap.h:
-/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
-/usr/include/x86_64-linux-gnu/sys/select.h:
-/usr/include/x86_64-linux-gnu/bits/select.h:
-/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
-/usr/include/x86_64-linux-gnu/bits/select2.h:
-/usr/include/x86_64-linux-gnu/bits/select-decl.h:
-/usr/include/regex.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
-../../../src/terminal/terminal/terminal.h:
+command-acl.h:
 ../../../src/libguac/guacamole/client.h:
 ../../../src/libguac/guacamole/client-fntypes.h:
 ../../../src/libguac/guacamole/socket.h:
@@ -241,6 +228,20 @@ settings.h:
 /usr/include/linux/close_range.h:
 ../../../src/libguac/guacamole/client-constants.h:
 ../../../src/libguac/guacamole/rwlock.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
+telnet.h:
+settings.h:
+/usr/include/x86_64-linux-gnu/sys/types.h:
+/usr/include/endian.h:
+/usr/include/x86_64-linux-gnu/bits/byteswap.h:
+/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+/usr/include/x86_64-linux-gnu/sys/select.h:
+/usr/include/x86_64-linux-gnu/bits/select.h:
+/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
+/usr/include/x86_64-linux-gnu/bits/select2.h:
+/usr/include/x86_64-linux-gnu/bits/select-decl.h:
+/usr/include/regex.h:
+../../../src/terminal/terminal/terminal.h:
 ../../../src/libguac/guacamole/stream.h:
 ../../../src/libguac/guacamole/recording.h:
 /usr/include/libtelnet.h:

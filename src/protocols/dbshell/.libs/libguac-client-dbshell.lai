@@ -17,7 +17,7 @@ old_library='libguac-client-dbshell.a'
 inherited_linker_flags=' -pthread'
 
 # Libraries that this one depends upon.
-dependency_libs=' -lutil /usr/local/lib/libguac-terminal.la -lm -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz /usr/local/lib/libguac.la -lcairo -ldl -ljpeg -lpng -lpthread -lssl -lcrypto -luuid -logg -lvorbis -lvorbisenc -lwebp'
+dependency_libs=' -L/usr/lib/x86_64-linux-gnu -lpq -lutil /usr/local/lib/libguac-terminal.la -lm -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz /usr/local/lib/libguac.la -lcairo -ldl -ljpeg -lpng -lpthread -lssl -lcrypto -luuid -logg -lvorbis -lvorbisenc -lwebp'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''

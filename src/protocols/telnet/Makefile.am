@@ -32,6 +32,8 @@ libguac_client_telnet_la_SOURCES = \
     argv.c                         \
     client.c                       \
     clipboard.c                    \
+    command-acl.c                  \
+    command_logger.c               \
     input.c                        \
     pipe.c                         \
     settings.c                     \
@@ -39,19 +41,22 @@ libguac_client_telnet_la_SOURCES = \
     user.c
 
 noinst_HEADERS = \
-    argv.h       \
-    client.h     \
-    clipboard.h  \
-    input.h      \
-    pipe.h       \
-    settings.h   \
-    telnet.h     \
+    argv.h           \
+    client.h         \
+    clipboard.h      \
+    command-acl.h    \
+    command_logger.h \
+    input.h          \
+    pipe.h           \
+    settings.h       \
+    telnet.h         \
     user.h
 
 libguac_client_telnet_la_CFLAGS = \
     -Werror -Wall -Iinclude       \
     @LIBGUAC_INCLUDE@             \
-    @TERMINAL_INCLUDE@
+    @TERMINAL_INCLUDE@            \
+    -I/usr/include/postgresql
 
 libguac_client_telnet_la_LIBADD = \
     @COMMON_LTLIB@                \
@@ -61,5 +66,6 @@ libguac_client_telnet_la_LIBADD = \
 libguac_client_telnet_la_LDFLAGS = \
     -version-info 0:0:0            \
     @PTHREAD_LIBS@                 \
-    @TELNET_LIBS@
-
+    @TELNET_LIBS@                  \
+    -L/usr/lib/x86_64-linux-gnu    \
+    -lpq

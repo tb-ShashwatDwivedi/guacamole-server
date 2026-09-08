@@ -18,6 +18,7 @@
  */
 
 #include "client.h"
+#include "command_logger.h"
 #include "dbshell.h"
 #include "settings.h"
 #include "user.h"
@@ -94,6 +95,14 @@ int guac_dbshell_client_free_handler(guac_client* client) {
     /* Free ACL configuration if one was loaded */
     if (dbshell_client->acl_config != NULL)
         guac_ssh_acl_free_config(dbshell_client->acl_config);
+
+    if (dbshell_client->cmd_logger != NULL) {
+        if (dbshell_client->sql_buffer_pos > 0)
+            guac_dbshell_command_logger_flush(dbshell_client->cmd_logger,
+                    dbshell_client->sql_buffer);
+        guac_dbshell_command_logger_free(dbshell_client->cmd_logger);
+        dbshell_client->cmd_logger = NULL;
+    }
 
     guac_mem_free(dbshell_client);
     return 0;

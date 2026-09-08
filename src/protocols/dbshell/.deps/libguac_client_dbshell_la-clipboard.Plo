@@ -73,9 +73,24 @@ libguac_client_dbshell_la-clipboard.lo: clipboard.c \
  ../../../src/libguac/guacamole/rwlock.h /usr/include/cairo/cairo.h \
  /usr/include/cairo/cairo-version.h /usr/include/cairo/cairo-features.h \
  /usr/include/cairo/cairo-deprecated.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h settings.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h command_logger.h \
  ../../../src/libguac/guacamole/user.h \
  ../../../src/libguac/guacamole/user-constants.h \
+ /usr/include/postgresql/libpq-fe.h /usr/include/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2-decl.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2.h \
+ /usr/include/postgresql/postgres_ext.h settings.h \
  ../../../src/terminal/terminal/terminal.h \
  ../../../src/libguac/guacamole/stream.h \
  ../../../src/libguac/guacamole/recording.h clipboard.h
@@ -165,9 +180,26 @@ command-acl.h:
 /usr/include/cairo/cairo-features.h:
 /usr/include/cairo/cairo-deprecated.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
-settings.h:
+command_logger.h:
 ../../../src/libguac/guacamole/user.h:
 ../../../src/libguac/guacamole/user-constants.h:
+/usr/include/postgresql/libpq-fe.h:
+/usr/include/stdio.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
+/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+/usr/include/x86_64-linux-gnu/bits/floatn.h:
+/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+/usr/include/x86_64-linux-gnu/bits/stdio2-decl.h:
+/usr/include/x86_64-linux-gnu/bits/stdio.h:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:
+/usr/include/postgresql/postgres_ext.h:
+settings.h:
 ../../../src/terminal/terminal/terminal.h:
 ../../../src/libguac/guacamole/stream.h:
 ../../../src/libguac/guacamole/recording.h:
